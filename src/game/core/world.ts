@@ -2,6 +2,7 @@ import { CHARACTERS, type CharacterId } from '../data/characters'
 import { WEAPONS } from '../data/weapons'
 import { COMBAT_OBSTACLES, ENEMY_DEFINITIONS, RANGED, type EnemyKind, type Obstacle } from '../data/arena'
 import { FIRST_SPAWN_DELAY } from '../data/pressure'
+import { PULSE_SKILL } from '../data/progression'
 
 export interface GroundPoint { x: number; z: number }
 export interface Enemy extends GroundPoint {
@@ -19,6 +20,7 @@ export interface Projectile extends GroundPoint {
   damage: number; maxHits: number; knockback: number; hitIds: number[]
 }
 export interface WeaponState { ammo: number; cooldown: number; reloadRemaining: number; burstRemaining: number }
+export interface XpGem extends GroundPoint { id: number; value: number }
 export interface World {
   player: GroundPoint
   aimDirection: GroundPoint
@@ -27,6 +29,7 @@ export interface World {
   dollId: CharacterId
   combat: boolean
   health: number
+  maxHealth: number
   hurtRemaining: number
   weapon: WeaponState
   enemies: Enemy[]
@@ -46,21 +49,35 @@ export interface World {
   enemyShots: number
   dodgedShots: number
   spawnCount: number
+  gems: XpGem[]
+  xp: number
+  level: number
+  pendingLevels: number
+  gunRank: number
+  equipment: Record<string, number>
+  evolution: boolean
+  pulseTimer: number
+  volleys: number
+  choiceSeed: number
+  gemsCollected: number
+  upgradesTaken: number
 }
 
-export const ARENA_HALF_SIZE = 12
+export const ARENA_HALF_SIZE = 20
 export const PLAYER_RADIUS = 0.4
 export const PLAYER_SPEED = 6
 
 export function createWorld(dollId: CharacterId = 'sabrina', combat = false): World {
   return {
     player: { x: 0, z: 0 }, aimDirection: { x: 0, z: -1 }, aimTarget: null, elapsed: 0,
-    dollId, combat, health: CHARACTERS[dollId].maxHealth, hurtRemaining: 0,
+    dollId, combat, health: CHARACTERS[dollId].maxHealth, maxHealth: CHARACTERS[dollId].maxHealth, hurtRemaining: 0,
     weapon: { ammo: WEAPONS[CHARACTERS[dollId].weaponId].magazine, cooldown: 0, reloadRemaining: 0, burstRemaining: 0 },
     enemies: combat ? [createEnemy(1, 0, -4)] : [], projectiles: [], obstacles: combat ? COMBAT_OBSTACLES : [],
     spawnTimer: FIRST_SPAWN_DELAY, spawnIndex: 0, nextId: 2, shots: 0, hits: 0, kills: 0, damageDealt: 0, reloads: 0,
     dash: { remaining: 0, cooldown: 0, direction: { x: 0, z: -1 }, origin: { x: 0, z: 0 } },
     dashes: 0, hostileProjectiles: [], enemyShots: 0, dodgedShots: 0, spawnCount: 0,
+    gems: [], xp: 0, level: 1, pendingLevels: 0, gunRank: 1, equipment: {}, evolution: false,
+    pulseTimer: PULSE_SKILL.interval, volleys: 0, choiceSeed: 0, gemsCollected: 0, upgradesTaken: 0,
   }
 }
 

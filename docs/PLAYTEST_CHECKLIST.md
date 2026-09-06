@@ -39,9 +39,9 @@ Expanded M2 director comparison (acceptance pending; automated evidence is logge
 - [ ] Ranged attacks have a visible and avoidable warning.
 - [ ] Repeated restart does not multiply enemies, damage or listeners.
 
-## M3 evasion and pressure (manual, pending Ian)
+## M3 evasion and pressure (accepted by Ian; automated evidence logged separately)
 
-Provisional tuning under test: dash 4 units / 0.20 s, invulnerable only while dashing, 1.20 s cooldown from activation; ranged warning 0.90 s, recovery 2.8 s, shot speed 7 u/s; first pressure spawn 4 s, at most 2 ranged alive, no spawn within 6 units.
+Provisional tuning: dash 4 units / 0.20 s, invulnerable only while dashing, 1.20 s cooldown from activation; ranged warning 0.90 s, recovery 2.8 s, shot speed 7 u/s; first pressure spawn 4 s, at most 2 ranged alive, no spawn within 6 units.
 
 - [ ] Space dashes toward held movement; with no keys it dashes toward cursor aim.
 - [ ] A pursuer touch or orange shot during the dash deals no damage; the same attack after the dash does.
@@ -52,7 +52,7 @@ Provisional tuning under test: dash 4 units / 0.20 s, invulnerable only while da
 - [ ] Pausing mid-dash or mid-warning freezes both; resume needs a deliberate action with fresh keys and no jump.
 - [ ] Retry and doll-switch clear dash state, warnings, orange shots and all M3 counters.
 
-## M3 follow-up: pause options and run timer (pending Ian)
+## M3 follow-up: pause options and run timer (accepted by Ian)
 
 - [ ] Pause shows Resume run, Restart run and Change character with a discard-current-run note.
 - [ ] Resume continues the run with elapsed time, HP and enemies preserved.
@@ -60,16 +60,48 @@ Provisional tuning under test: dash 4 units / 0.20 s, invulnerable only while da
 - [ ] Change character returns to selection; another doll starts clean.
 - [ ] TIME (MM:SS) advances during play and freezes on pause, focus loss and game over.
 
-## M4 progression
+## M4 progression (director results 2026-09-06; acceptance pending)
 
-- [ ] XP grants one intended amount; pickups are not collected twice.
-- [ ] Multiple level-ups are queued while combat remains paused.
-- [ ] Offered upgrades are eligible and respect slot/rank caps.
-- [ ] The no-eligible-upgrade fallback works.
-- [ ] Evolution requires the stated ranks and reward opportunity.
-- [ ] Evolution is achievable in normal tuned play, not only via debug tools.
-- [ ] Follow-up attacks cannot trigger an unlimited chain.
-- [ ] A new run clears in-run upgrades.
+As implemented: pursuer gems 2 XP, ranged gems 4 XP; need 3 + (level−1) × 2 to level 20; gun ranks 1–5 (+15% damage); Plated Vest / Drum Magazine / Trigger Unit at 3 ranks with 3 gear slots; Sabrina auto-pulse every 6 s; Shockwave Barrage evolution needs Sabrina gun 5 + Vest 3. No elite enemy in M4 (deferred).
+
+- [x] Kills drop one gem each; walking over a gem grants its XP once and fills the bar. (Ian: good)
+- [x] Excess XP carries; several queued levels resolve one choice screen after another. (Ian: good)
+- [x] Choices are distinct, eligible, and respect rank caps and gear slots; fallback Rations appear when pools run dry. (Ian: upgrades good)
+- [x] Gun ranks hit harder, Vests raise max HP, Drums widen the next reload, Triggers quicken fire — on every doll. (Ian: upgrades good)
+- [ ] Evolution appears only at gun 5 + Vest 3 (Sabrina), empowers every 4th volley, and shows the EVO tag. (Ian: works, refinement pending clarification — not redesigned yet)
+- [x] Alt-Tab during a choice leaves the upgrade screen intact with nothing advanced. (covered by Ian's level-up flow pass)
+- [x] Restart, retry and doll-switch reset LV, XP, gems, ranks, gear, evolution and pulse state. (Ian: good)
+- [ ] XP bar sits in its own full-width row below the HUD info at desktop and narrow widths. (fix implemented + verified, pending Ian's review)
+- [ ] Pause menu, timer, dash, warnings, separation and pressure still behave as accepted.
+
+## M4 follow-up: survival layout, arena and pacing (pending Ian)
+
+- [ ] The game fills the window with no page scroll; no header/footer panels during runs.
+- [ ] All four covers read clearly; lanes stay open for retreat in every quadrant.
+- [ ] Pressure ramps from a calm opening to dense phase 3+; ranged warnings stay readable (≤2 ranged).
+- [ ] Spawns never pop in beside the player; most arrive from off-view.
+- [ ] Levels land ~30–45 s apart; evolution reachable in a few minutes without constant interruptions.
+- [ ] After picking upgrades, moving the mouse resumes auto-fire.
+- [ ] Resize mid-run (including narrow/portrait-ish): no stretched scene, aim stays true, HUD/dialogs usable.
+
+## M4 follow-up: run chrome without header/footer (accepted by Ian; arena/pressure feedback positive)
+
+Ian: larger arena is a good M5 baseline; density and pressure feel good after one minute. Ian tested the header/footer cleanup and it looks good.
+
+- [x] Starting a run hides the header branding and footer instructions with no gaps or dead input areas. (Ian: looks good)
+- [x] Pause overlay stays top-right, enabled only during play, clear of the HUD and XP bar. (Ian: looks good)
+- [x] Pause dialog carries the move/dash/aim/auto-fire instructions and all existing actions. (Ian: looks good)
+- [x] Selection restores the header; dialogs and HUD stay usable narrow. (Ian: looks good)
+
+## M4 follow-up: selection-screen palette (pending Ian's visual review)
+
+Provisional palette: #121316 bg, #1E2024 cards, #3B3E44 borders, #FF7800 accent, #FF952E hover accent, #F4EFE7 text, #B8B5AF secondary text. Reference images only; no official assets added.
+
+- [ ] Charcoal background and neutral cards read clean at desktop and narrow widths.
+- [ ] Orange Start button, selected border/tint/label, and header accents look right.
+- [ ] Hover, keyboard focus, and selected states are clearly distinct on every doll.
+- [ ] Body text is legible warm white/muted gray; doll placeholder colors unchanged.
+- [ ] Combat HUD, arena, projectiles, warnings, gems, and dialogs are unaffected.
 
 ## M5/M6 presentation and delivery
 

@@ -6,9 +6,43 @@ interface CombatSnapshot {
   dollId: keyof typeof CHARACTERS; status: string; health: number; shots: number; hits: number; kills: number; elapsed: number
   projectiles: unknown[]; held: string[]; enemiesScreen: { id: number; x: number; y: number }[]
   weapon: { ammo: number; cooldown: number; burstRemaining: number; reloadRemaining: number }
+  player: { x: number; z: number }; enemies: { x: number; z: number }[]
 }
 async function snapshot(page: Page): Promise<CombatSnapshot> {
   return JSON.parse((await page.locator('canvas').getAttribute('data-playground'))!) as CombatSnapshot
+}
+/** Park on the Pause overlay so canvas pointerleave clears aim and auto-fire
+ * stops, then walk into the nearest enemy until contact ends the run. */
+async function seekDeath(page: Page) {
+  await page.getByRole('button', { name: 'Pause Esc' }).hover()
+  const keys = ['KeyW', 'KeyA', 'KeyS', 'KeyD'] as const
+  const start = Date.now()
+  while (Date.now() - start < 60000) {
+    if (await page.getByRole('heading', { name: 'Game over', exact: true }).isVisible()) break
+    if (await page.locator('.levelup-card').isVisible()) {
+      await page.locator('.levelup-card').getByRole('button').first().click()
+      await page.waitForTimeout(400)
+      continue
+    }
+    const state = await snapshot(page)
+    let target = { x: 0, z: -19 }
+    let nearest = Infinity
+    for (const enemy of state.enemies) {
+      const distance = Math.hypot(enemy.x - state.player.x, enemy.z - state.player.z)
+      if (distance < nearest) { nearest = distance; target = enemy }
+    }
+    const want = new Set<string>()
+    if (target.x > state.player.x + 0.3) want.add('KeyD')
+    if (target.x < state.player.x - 0.3) want.add('KeyA')
+    if (target.z > state.player.z + 0.3) want.add('KeyS')
+    if (target.z < state.player.z - 0.3) want.add('KeyW')
+    for (const key of keys) {
+      if (want.has(key)) await page.keyboard.down(key)
+      else await page.keyboard.up(key)
+    }
+    await page.waitForTimeout(200)
+  }
+  for (const key of keys) await page.keyboard.up(key)
 }
 async function startSelected(page: Page) {
   await page.getByRole('button', { name: 'Start run' }).click()
@@ -19,7 +53,7 @@ async function startSelected(page: Page) {
 
 for (const doll of CHARACTER_LIST) {
   test(`${doll.name}: select, fire, defeat, pause/focus, die and retry`, async ({ page }) => {
-    test.setTimeout(45000)
+    test.setTimeout(120000)
     const errors: string[] = []
     page.on('pageerror', (error) => errors.push(error.message))
     await page.goto('/?inspect=1')
@@ -53,9 +87,10 @@ for (const doll of CHARACTER_LIST) {
     await page.evaluate(() => window.dispatchEvent(new Event('blur')))
     await expect(page.getByRole('heading', { name: 'Run paused' })).toBeVisible()
     await page.evaluate(() => window.dispatchEvent(new Event('focus')))
-    expect((await snapshot(page)).status).toBe('paused')
+    // The canvas snapshot refreshes on the next animation frame, behind React.
+    await expect.poll(async () => (await snapshot(page)).status).toBe('paused')
     await page.getByRole('button', { name: 'Resume run' }).click()
-    await page.mouse.move(30, 30) // No aim input: allow real pursuer contact to end the run.
+    await seekDeath(page) // Corner aim plus walking into contact ends the run.
     await expect(page.getByRole('heading', { name: 'Game over', exact: true })).toBeVisible({ timeout: 25000 })
     const dead = await snapshot(page)
     expect(dead.health).toBe(0)

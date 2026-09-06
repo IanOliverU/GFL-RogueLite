@@ -13,7 +13,7 @@ export function Arena({ obstacles = [] }: { obstacles?: readonly Obstacle[] }) {
     <mesh rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[size, size]} /><meshStandardMaterial color="#35494b" roughness={1} />
     </mesh>
-    <gridHelper args={[size, 24, '#79928a', '#49615e']} position={[0, 0.015, 0]} />
+    <gridHelper args={[size, size, '#79928a', '#49615e']} position={[0, 0.015, 0]} />
     {[-1, 1].map((side) => <group key={side}>
       <mesh position={[side * (ARENA_HALF_SIZE + 0.15), 0.18, 0]}>
         <boxGeometry args={[0.3, 0.36, size + 0.6]} /><meshStandardMaterial color="#c5aa69" />

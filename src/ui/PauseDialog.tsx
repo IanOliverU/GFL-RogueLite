@@ -30,6 +30,11 @@ export function PauseDialog({ simulation }: { simulation: Simulation }) {
       {inCombat && <button ref={restartButton} className="secondary-button" onClick={() => simulation.startRun(simulation.world.dollId)}>Restart run</button>}
       {inCombat && <button ref={selectionButton} className="secondary-button" onClick={() => simulation.returnToSelection()}>Change character</button>}
       <small>{inCombat ? 'Restarting or changing character discards the current run. ' : ''}Press fresh movement keys after resuming.</small>
+      <ul className="control-hints" aria-label="Controls">
+        <li><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span> Move</li>
+        {inCombat && <li><span><kbd>Space</kbd></span> Dash</li>}
+        <li><span className="cursor-icon">↗</span> Mouse to aim{inCombat ? ' · Auto-fire in enemy range · Automatic reload' : ''}</li>
+      </ul>
     </section>
   </div>
 }

@@ -44,6 +44,29 @@ These are practical defaults from the planning discussion, adjustable through pl
 - Upright procedural flat character shapes and simple arena geometry avoid asset dependencies. No Blender connection or official art required for M1. Rendering and browser lifecycle remain separate from simulation; React receives infrequent lifecycle notifications.
 - `?inspect=1` enables read-only canvas snapshots for production browser checks; no diagnostics are written during ordinary play. Browser tests run installed Chrome with software WebGL. Real OS focus transitions, zoom/DPR, graphics reset and human feel remain manual checks.
 
+### M4 progression baseline — 2026-09-06
+
+- Approved M4 subset implements XP/levels/choices, gun ranks 1–5 (+15% damage each), three rank-3 equipment items (Plated Vest, Drum Magazine, Trigger Unit; at most 3 distinct), one Sabrina evolution (Shockwave Barrage: gun rank 5 + Plated Vest rank 3; every 4th volley ×2 damage/knockback +4 pellets), and Sabrina's automatic 6-second knockback pulse. XP: pursuer 2, ranged 4; level need 3 + (level−1) × 2, cap 20. All provisional; data in `src/game/data/progression.ts` is authoritative at runtime.
+- No elite enemy in M4: the design doc's elite evolution opportunity is deferred because Ian's approved M4 scope lists the evolution without elites. Evolution requirements stay visible on the level-up screen as a progress line. A dev-only `?devxp=N` URL bonus exists for testing the evolution quickly; it applies only on selection-screen start, never on retry, and is not production progression.
+- One `levelup` run state freezes the fixed-step simulation; the modal dialog offers exactly 3 distinct eligible choices with gun/evolution priority and deterministic equipment rotation; Field Rations (heal 30) is the always-eligible fallback so exhausted pools cannot trap the player. Upgrades derive stats per volley and never reset loaded ammo, cooldowns, bursts or reloads.
+- Browser choice automation must settle (~400 ms) after each applied pick before deciding the next click; deciding against the pre-commit DOM loses clicks. Recorded after the M4 evolution spec stalled twice on this race with no gameplay defect.
+
+### M4 survival-layout/arena/pacing baseline — 2026-09-06
+
+- Full-window view with overlaid slim top/bottom bars (translucent, `position: absolute`, no page scroll, no fullscreen). HUD keeps its overlay position with the XP row intact; selection scrolls internally; dialogs center over the full view. Camera math is unchanged, so aiming and resize behavior carry over.
+- Arena 40 × 40 (half-size 20), four scattered cover blocks with open lanes; the original east block is untouched so M2/M3 cover geometry tests still apply. Camera half-height stays 14 for readability. Spawn points moved to eight edge positions with an 8-unit minimum and a 16-unit out-of-view preference (two-pass pick, still no banking).
+- Pressure phases 3.0 s/6/1r, 2.4 s/10/2r @20 s, 2.0 s/14/2r @60 s, 1.6 s/18/2r @120 s; hard cap 8 → 20; ranged stays ≤ 2. Level need 5 + (level−1) × 3 (drops unchanged) so the ~2.5× kill throughput yields a level every ~30–45 s and evolution in ~2–3 min. Measured: soak bot evolved at ~116 s and survived 240 s. No simulation bottleneck found (240 s sim ≈ 1 s Node); no new rendering abstractions added — instanced batches already cover the higher counts.
+- After level-up choices, auto-fire waits for fresh mouse movement (pointer clears with inputs, same as pause/resume). Flagged for the playtest notes rather than changed.
+
+### M4 selection-screen palette — 2026-09-06
+
+- Provisional menu palette from Ian's GFL2 references (reference only; no official assets): #121316 background, #1E2024 cards, #3B3E44 borders, #FF7800 primary accent, #FF952E hover accent, #F4EFE7 main text, #B8B5AF secondary text, #231303 dark on-accent text. Named `--menu-*` variables on `.app-shell`, consumed only by topbar/selection rules; combat visuals untouched. Hover lifts the surface without an orange border so it never mimics selection; global focus outline kept. Six doll placeholder colors unchanged.
+
+### M4 run-chrome cleanup — 2026-09-06 (accepted by Ian)
+
+- Header renders only in selection; the footer is removed and its instructions moved into a `control-hints` section of the pause dialog (dash row only in combat). Pause is an absolute top-right overlay with the same label/Escape hint, enabled only while playing; the HUD sits below it with the XP row intact. No gameplay, camera, spawn, XP, evolution, or input changes.
+- Test fallout from the full-window canvas (no game defects): corner-aim death setups no longer starve fire, so death tests park on the Pause overlay (canvas `pointerleave` clears aim) and walk into contact; the Tololo focus assertion polls because the canvas inspect snapshot trails React by one frame.
+
 ### Remaining nonblocking items
 
 - Final title, visual reference sheet and sprite source/permission.

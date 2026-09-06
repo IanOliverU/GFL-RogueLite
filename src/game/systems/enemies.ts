@@ -7,7 +7,7 @@ import { stepSpawning } from './spawning'
 
 const distance = (a: GroundPoint, b: GroundPoint) => Math.hypot(a.x - b.x, a.z - b.z)
 
-/** Tiny visibility graph around the single M2 cover block, recalculated from current positions. */
+/** Tiny visibility graph around the cover blocks, recalculated from current positions. */
 export function pursuitTarget(start: GroundPoint, end: GroundPoint, obstacles: readonly Obstacle[], radius: number = PURSUER.radius): GroundPoint {
   const clear = (a: GroundPoint, b: GroundPoint) => obstacles.every((box) => segmentBox(a, b, box, radius) === null)
   if (clear(start, end)) return end

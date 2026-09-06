@@ -1,6 +1,6 @@
-﻿# GFL2 Exilium Fan Game — M3 dash and pressure prototype
+﻿# GFL2 Exilium Fan Game — M4 run-progression prototype
 
-Independent Girls' Frontline-inspired browser fan-game prototype. Ian is director/producer and playtester. M0/M1 are preserved, the expanded M2 added six selectable dolls with distinct basic weapons and shared combat (accepted, committed as `e8bb217`), and M3 adds dash evasion plus ranged-enemy pressure. These are prototype fan-game adaptations, not verified official kits. M3 acceptance is pending Ian's review; stop here before M4.
+Independent Girls' Frontline-inspired browser fan-game prototype. Ian is director/producer and playtester. M0/M1 are preserved, the expanded M2 added six selectable dolls with distinct basic weapons and shared combat, and M3 added dash evasion, ranged-enemy pressure, pause-menu options and a run timer (all accepted; M3 committed as `cbafbdc`). M4 adds XP levels, upgrade choices, gun/equipment ranks and one Sabrina evolution. These are prototype fan-game adaptations, not verified official kits. M4 acceptance is pending Ian's review; stop here before M5.
 
 ## Run locally
 
@@ -53,7 +53,7 @@ The pause menu offers **Resume run**, **Restart run** (fresh run with the same d
 Detailed provisional weapon values are in [GAME_DESIGN.md](docs/GAME_DESIGN.md) and typed definitions in `src/game/data/`. There is no manual reload, click-to-fire or aim assistance. The preserved M1 no-combat playground is available via its selection-screen link or `http://127.0.0.1:5173/?mode=playground`.
 
 - WASD moves on the XZ floor at 6 units/second with equal diagonal speed. Opposing keys cancel.
-- A fixed elevated orthographic camera follows 45% of player translation without rotating. The 24 × 24 arena bounds the entire 0.4-unit-radius player collider.
+- The game view fills the browser window with no header, footer, or page scroll during runs (selection keeps the normal header). A compact Pause overlay sits top-right, clear of the combat HUD; full control instructions live in the pause dialog. A fixed elevated orthographic camera follows 45% of player translation without rotating. The 40 × 40 arena bounds the entire 0.4-unit-radius player collider, with four scattered cover blocks and open lanes between them.
 - The upright placeholder uses a bottom-center foot origin. The foot ring marks its ground position.
 - Move the mouse over the arena view: the gold direction marker follows the shared aim direction; the target ring marks the cursor projected onto Y=0. Projection uses the actual canvas rectangle after camera movement and on every frame, including resize with a stationary cursor.
 - Aim can extend outside the bounded arena onto the same floor plane. A missing or near-zero target preserves the last valid direction. Leaving the canvas hides the cursor target.
@@ -61,7 +61,20 @@ Detailed provisional weapon values are in [GAME_DESIGN.md](docs/GAME_DESIGN.md) 
 - WebGL startup errors show a fallback message; context loss pauses and offers recovery/reload guidance.
 - Space dashes (movement direction, else aim); HUD shows READY, countdown or DASHING. Dash trail/ring placeholders are visible only during the 0.20 s invulnerability interval. Pause/focus freezes dash, warning, projectile, weapon and spawn timers, clears held keys/aim/queued dash, and resume needs a deliberate action with no catch-up jump.
 
-M3 includes one pursuer type plus one ranged type with telegraph/projectiles and phased spawn pressure. No XP, three-skill kits, ultimates, weapon evolution, audio, storage or polished art is implemented. All visible assets are project-created procedural geometry/flat planes or labeled CSS silhouettes; Blender was not needed or used. No official sprites are included.
+M3 includes one pursuer type plus one ranged type with telegraph/projectiles and phased spawn pressure. Survival pacing for the larger arena:
+
+| Phase (starts) | Spawn interval | Max alive | Max ranged |
+| --- | --- | --- | --- |
+| 0 s | 3.0 s | 6 | 1 |
+| 20 s | 2.4 s | 10 | 2 |
+| 60 s | 2.0 s | 14 | 2 |
+| 120 s | 1.6 s | 18 | 2 |
+
+First spawn at 4 s, no spawn within 8 units of the player (out-of-view points at 16+ units preferred), capped populations never bank missed spawns. Level need steepened to 5 + (level−1) × 3 so upgrades land ~30–45 s apart at the higher kill rate; XP drops unchanged. Before: 24 × 24 arena, phases 3.5 s/4, 3.0 s/6, 2.6 s/8, spawn distance 6, level need 3 + (level−1) × 2.
+
+M4 adds per-run progression: defeated enemies drop one green XP gem each (pursuer 2, ranged 4; larger octahedrons for ranged drops). Walk over gems to collect them — nearby gems drift toward you. The HUD shows LV, an XP bar, HP against the run's max HP, derived magazine size and an EVO tag once evolved. Level need is 3 + (level−1) × 2 up to level 20; excess XP carries and each earned level queues one choice. Level-ups freeze the whole run and offer 3 distinct eligible upgrades: gun ranks 1–5 (+15% damage each), Plated Vest (+25 max HP, heals 25), Drum Magazine (+30% magazine on next reload), Trigger Unit (fire interval ×0.88), or the gold Shockwave Barrage evolution. Sabrina automatically pulses knockback every 6 seconds and is the only doll with an evolution: Broad shotgun rank 5 + Plated Vest rank 3 makes every 4th volley empowered (double damage/knockback, +4 pellets). The dialog always shows the evolution requirements for Sabrina. Field Rations (heal 30) is always available so you can never get stuck. Retry, restart and character switching wipe all progression. Dev-only: start a run at `?devxp=N` (e.g. `http://127.0.0.1:5173/?devxp=150`) to grant N XP for testing builds; retries never grant it.
+
+No three-skill kits, ultimates beyond the pulse/evolution above, audio, storage or polished art is implemented. All visible assets are project-created procedural geometry/flat planes or labeled CSS silhouettes; Blender was not needed or used. No official sprites are included.
 
 ## Actual structure
 
@@ -74,10 +87,10 @@ src/
     systems/        Movement, targeting, weapons, swept collision, enemies/projectiles
   render/           Arena, foot-anchored planes, camera/aim, batched combat visuals
   platform/         Browser input, focus/visibility and graphics lifecycle
-  ui/               Selection, HUD, pause, game over and render-error boundary
+  ui/               Selection, HUD, pause, level-up, game over and render-error boundary
 tests/
   core/             Simulation timing and pause lifecycle
-  systems/          Movement, targeting, weapon timing/collision/combat lifecycle
+  systems/          Movement, targeting, weapon timing/collision/combat/progression lifecycle
   browser/          Production Chrome checks for all six dolls and preserved M1
 docs/               Design baseline, decisions, provenance and evidence
 ```
@@ -104,9 +117,13 @@ Compatibility was checked against official [R3F documentation](https://github.co
 
 ## Verification and known limitations
 
-M3 verification: core mechanics were manually playtested by Ian (dash, collision, ranged attacks, enemy pressure, pause/real Alt-Tab, reset, all six dolls) and **accepted**; remaining limitations from the automated checks still apply. Automated checks (finishing agent; M2 `e8bb217` preserved): build (incl. typecheck), standalone typecheck, lint and `git diff --check` passed; **71 unit tests passed in 6 files** (13 M1 + 25 M2 combat + 28 M3 + 5 follow-up); **13 production Chrome browser tests passed** (6 doll lifecycles, 1 selection/switch, 2 M3 dash/ranged, 1 follow-up pause-menu/timer, 3 M1 regressions). Dash cooldown timing was re-checked at the step level (1.20 s from activation). Screenshots `test-results/m3-dash.png`, `m3-warning.png`, `m3-projectile.png` and `m3-pause-menu.png` (three pause options, discard note, TIME 00:02) were visually inspected. See [M3 evidence](docs/MILESTONES.md). No commit, push or deployment performed.
+M4 verification (2026-09-06): build (incl. typecheck), standalone typecheck, lint and `git diff --check` passed; **98 unit tests passed in 7 files** (13 M1 + 25 M2 combat + 28 M3 + 5 follow-up + 27 M4 incl. a 240 s pressure soak holding per-step caps); **19 production Chrome browser tests passed** in ~4.7 min (existing 18 + 1 sustained pressure run to 60 s+ with density and readable ranged counts). The 240 s soak (kiting evolving Sabrina) survived, reached evolution, and never exceeded live phase caps; no simulation-side bottleneck observed (soak runs in ~1 s of Node time). Screenshots `test-results/m4-gems.png`, `m4-levelup.png`, `m4-evolution.png`, `m4-hud-desktop/narrow.png` and `m4-pressure.png` (LV 7, 16 kills at 01:05, 9+ enemies, covers, gems) were visually inspected. Environment: headless Chrome + software WebGL — correctness checks, not GPU performance. See [M4 evidence](docs/MILESTONES.md). No commit, push or deployment performed.
 
-M3 limitations: provisional tuning throughout; static placeholder doll silhouettes; at most 2 ranged enemies; software-WebGL correctness checks do not establish GPU performance. Real browser zoom/DPR, other browsers, graphics-context recovery and human dash/weapon feel still need manual review (real Alt-Tab covered by Ian's playtest). The rendering bundle is ~1.11 MB minified / ~304 KB gzip and still triggers Vite's size warning. Core M3 accepted by Ian; the pause-menu/timer follow-up is pending his review.
+M4 limitations: provisional balance (measured soak bot evolved naturally at ~2 min/level 9/48 kills and survived the full 240 s; director feel check still needed, including level-up frequency of roughly one per 15–30 s); gems read small in stills; pulse feedback is enemy hit-flash only; focus-loss coverage still synthetic. After choosing upgrades, auto-fire needs the mouse to move over the canvas again (pointer clears with inputs, as with pause/resume). Real browser zoom/DPR, other browsers, graphics-context recovery, reference-GPU performance and human upgrade feel remain manual. The rendering bundle is ~1.11 MB minified / ~307 KB gzip and still triggers Vite's size warning.
+
+M3 verification: core mechanics were manually playtested by Ian (dash, collision, ranged attacks, enemy pressure, pause/real Alt-Tab, reset, all six dolls) and **accepted**, as was the pause-menu/timer follow-up (committed as `cbafbdc`); remaining limitations from the automated checks still apply. Automated checks: build (incl. typecheck), standalone typecheck, lint and `git diff --check` passed; **71 unit tests passed in 6 files**; **13 production Chrome browser tests passed**. Screenshots `test-results/m3-dash.png`, `m3-warning.png`, `m3-projectile.png` and `m3-pause-menu.png` were visually inspected. See [M3 evidence](docs/MILESTONES.md).
+
+M3 limitations: provisional tuning throughout; static placeholder doll silhouettes; at most 2 ranged enemies; software-WebGL correctness checks do not establish GPU performance. Real browser zoom/DPR, other browsers, graphics-context recovery and human dash/weapon feel still need manual review (real Alt-Tab covered by Ian's playtest). The rendering bundle is ~1.11 MB minified / ~304 KB gzip and still triggers Vite's size warning. M3 fully accepted by Ian.
 
 M2 limitations: provisional balance, static placeholder doll silhouettes, one enemy type, no enemy-to-enemy separation, no audio or later systems. Sustained knockback can pin a pursuer, and the sniper can kill a basic pursuer in one shot; director feedback should guide tuning. Software-WebGL correctness checks do not establish GPU performance. Real Alt-Tab/visibility changes, browser zoom/DPR, other browsers, graphics-context recovery and human movement/weapon feel still need manual review. The current rendering bundle is ~1.10 MB minified / ~302 KB gzip and still triggers Vite's size warning. Acceptance remains pending.
 
@@ -118,12 +135,21 @@ Vite reports a bundle-size warning: the main JavaScript bundle is approximately 
 
 ## Director playtest
 
-M3 core is accepted by Ian. Pending follow-up checklist (pause options + timer):
-- Pause mid-run: confirm Resume run, Restart run and Change character plus the discard note.
-- Resume: run continues with elapsed time, HP and enemies preserved.
-- Restart run: same doll, TIME back to 00:00, fresh HP/ammo/dash/counters, no leftover enemies or orange shots.
-- Change character: selection screen returns; pick another doll and start clean.
-- TIME advances during play (MM:SS), freezes while paused and after game over.
+M4 director results (2026-09-06): XP collection/drops, level-up flow, upgrades and restart/retry/switching all good. Evolution works but needs refinement — desired changes still need clarification, so it is not redesigned yet. Larger arena approved as the M5 baseline; density and spawn pressure feel good after one minute. Header/footer removal, Pause overlay, and pause-dialog instructions tested well and are accepted. Selection-screen palette (charcoal/orange/warm-white provisional) is implemented and verified, pending Ian's visual review. M4 acceptance as a whole remains pending. Remaining checks (try Sabrina first, then one rifle and one shotgun doll):
+- Kill enemies, watch green gems drop, walk over them: LV, XP bar and xp fill; larger gems come from purple ranged enemies.
+- Earn a level: the run freezes with 3 ranked choices; pick a gun rank and confirm stronger shots; pick Plated Vest and confirm higher max HP.
+- Queue check: with `?devxp=150`, pick through several queued levels; choices stay distinct and the run resumes after the last one.
+- Evolution (Sabrina): take Broad shotgun to rank 5 and Plated Vest to rank 3, then take the gold Shockwave Barrage; confirm the EVO tag and empowered volleys every 4th shot.
+- Open a level-up, Alt-Tab away and return: the choice screen is intact, nothing advanced, no drift after resuming.
+- Restart mid-build and switch dolls: LV 1, empty XP, base weapon, no EVO, no leftover gems.
+
+Pacing follow-up checklist (pending; play normally — no shortcut needed, though `?devxp=` still works for build testing):
+- Survive past 01:00 and 02:00: density should clearly step up; ranged count stays readable.
+- Confirm kills feel rewarded but level-ups don't interrupt constantly.
+- Check spawns arrive from off-view, never beside you.
+- Resize the window mid-run and try a narrow width: full-window view, true aim, usable HUD and dialogs.
+
+M3 and its pause-menu/timer follow-up are accepted by Ian. Earlier checklists retained below.
 
 M3 checklist (all six dolls preserved; try at least Sabrina plus one rifle and one shotgun):
 - Dash west/east with a held key; dash stationary and check it follows cursor aim.
@@ -157,4 +183,4 @@ Report what you tried, expected, and observed. Director feedback is recorded sep
 - [Playtest and verification](docs/PLAYTEST_CHECKLIST.md)
 - [Decisions and sources](docs/DECISIONS.md)
 
-The approved M2 scope now includes all six basic weapons and selection. M3 adds dash evasion and ranged pressure only. Full doll skill kits, XP, upgrades, evolutions and a paced three-to-five-minute encounter remain later milestones. Review M3 before authorizing further development.
+The approved M2 scope now includes all six basic weapons and selection. M3 added dash evasion, ranged pressure, pause options and the run timer. M4 adds XP levels, upgrade choices, gun/equipment ranks, Sabrina's auto-pulse and one evolution. Full doll skill kits and a paced three-to-five-minute encounter remain later milestones. Review M4 before authorizing further development.

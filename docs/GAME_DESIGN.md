@@ -31,6 +31,8 @@ Level-ups offer three eligible choices: gun rank, doll skill upgrade, or equipme
 
 When no ranked upgrade is eligible, offer a defined fallback such as healing (only below max health) or score currency. Cap rank values and prevent duplicate incompatible choices. Queue multiple level-ups without advancing simulation while the upgrade menu is open.
 
+M4 as implemented (2026-09-06, evidence in `docs/MILESTONES.md`): XP gems (pursuer 2, ranged 4), level need 3 + (level−1) × 2 up to level 20, modal choice of 3 distinct eligible upgrades with carry-forward and queuing, gun ranks 1–5 (+15% damage each), three equipment items at up to rank 3 with 3 slots, Sabrina's automatic 6-second knockback pulse, and the single Shockwave Barrage evolution (Sabrina gun rank 5 + Plated Vest rank 3; every 4th volley empowered). The earlier elite-enemy reward proposal is deferred — outside the approved M4 scope. Dev-only `?devxp=N` start bonus is not production progression.
+
 ## Selected roster and proposed adaptations
 
 ### Approved M2 basic-weapon baseline (2026-09-06)

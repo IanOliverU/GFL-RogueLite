@@ -4,7 +4,7 @@ import { ARENA_HALF_SIZE, createEnemy, createWorld, PLAYER_RADIUS } from '../../
 import { CHARACTER_LIST } from '../../src/game/data/characters'
 import { COMBAT_OBSTACLES, PURSUER, RANGED } from '../../src/game/data/arena'
 import { DASH } from '../../src/game/data/dash'
-import { MIN_SPAWN_DISTANCE, PRESSURE_PHASES, pressureAt } from '../../src/game/data/pressure'
+import { FAR_SPAWN_DISTANCE, MIN_SPAWN_DISTANCE, PRESSURE_PHASES, pressureAt } from '../../src/game/data/pressure'
 import { stepEnemies } from '../../src/game/systems/enemies'
 import { moveCircleSwept } from '../../src/game/systems/collision'
 import { damagePlayer } from '../../src/game/systems/damage'
@@ -77,7 +77,7 @@ describe('dash', () => {
 
     const perimeter = new Simulation('combat')
     perimeter.startRun('sabrina')
-    perimeter.world.player = { x: 10, z: 0 }
+    perimeter.world.player = { x: 17, z: 0 }
     perimeter.pointer = { x: 0, y: 0 }
     perimeter.requestDash()
     runSteps(perimeter, 12, () => ({ x: 20, z: 0 }))
@@ -302,9 +302,10 @@ describe('enemy separation', () => {
 describe('spawn pressure', () => {
   it('escalates phases at their recorded start times', () => {
     expect(pressureAt(0)).toBe(PRESSURE_PHASES[0])
-    expect(pressureAt(PRESSURE_PHASES[1].start - 0.1)).toBe(PRESSURE_PHASES[0])
-    expect(pressureAt(PRESSURE_PHASES[1].start)).toBe(PRESSURE_PHASES[1])
-    expect(pressureAt(PRESSURE_PHASES[2].start)).toBe(PRESSURE_PHASES[2])
+    for (let i = 1; i < PRESSURE_PHASES.length; i++) {
+      expect(pressureAt(PRESSURE_PHASES[i].start - 0.1)).toBe(PRESSURE_PHASES[i - 1])
+      expect(pressureAt(PRESSURE_PHASES[i].start)).toBe(PRESSURE_PHASES[i])
+    }
   })
 
   it('delays the first pressure spawn to four seconds and spaces the next', () => {
@@ -315,31 +316,35 @@ describe('spawn pressure', () => {
     expect(world.enemies).toHaveLength(2)
     expect(world.enemies[1].kind).toBe('ranged')
     expect(world.spawnTimer).toBe(PRESSURE_PHASES[0].interval)
-    for (let i = 0; i < 215; i++) stepSpawning(world, FIXED_STEP)
+    for (let i = 0; i < Math.round(PRESSURE_PHASES[0].interval / FIXED_STEP) + 5; i++) stepSpawning(world, FIXED_STEP)
     expect(world.enemies).toHaveLength(3)
     expect(world.enemies[2].kind).toBe('pursuer')
   })
 
-  it('never spawns within six units of the player', () => {
+  it('keeps a safe distance and prefers out-of-view spawns', () => {
     const world = createWorld('sabrina', true)
-    world.player = { x: 0, z: -6 } // Blocks the (0,-9) point at three units.
+    world.player = { x: 0, z: -14 } // Blocks the (0,-17) point at three units.
     world.spawnTimer = 0
     stepSpawning(world, FIXED_STEP)
     expect(world.enemies).toHaveLength(2)
     const spawned = world.enemies[1]
     expect(Math.hypot(spawned.x - world.player.x, spawned.z - world.player.z)).toBeGreaterThanOrEqual(MIN_SPAWN_DISTANCE)
+    // Every other point is far away, so the fallback is never a close one.
+    expect(Math.hypot(spawned.x - world.player.x, spawned.z - world.player.z)).toBeGreaterThanOrEqual(FAR_SPAWN_DISTANCE)
   })
 
   it('respects the phase alive cap without banking missed spawns', () => {
     const world = createWorld('sabrina', true)
-    world.enemies.push(createEnemy(30, 8, 0), createEnemy(31, -8, 0), createEnemy(32, 0, 8))
+    while (world.enemies.length < PRESSURE_PHASES[0].maxAlive) {
+      world.enemies.push(createEnemy(30 + world.enemies.length, 8, world.enemies.length))
+    }
     world.spawnTimer = 0
     stepSpawning(world, FIXED_STEP)
-    expect(world.enemies).toHaveLength(4)
+    expect(world.enemies).toHaveLength(PRESSURE_PHASES[0].maxAlive)
     world.enemies.pop()
     world.spawnTimer = 0
     stepSpawning(world, FIXED_STEP)
-    expect(world.enemies).toHaveLength(4)
+    expect(world.enemies).toHaveLength(PRESSURE_PHASES[0].maxAlive)
     expect(world.spawnTimer).toBe(PRESSURE_PHASES[0].interval)
   })
 

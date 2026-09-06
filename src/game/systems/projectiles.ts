@@ -1,6 +1,7 @@
 import type { World } from '../core/world'
 import { ENEMY_DEFINITIONS } from '../data/arena'
 import { boundaryHit, segmentBox, segmentCircle } from './collision'
+import { registerKill } from './progression'
 
 export function stepProjectiles(world: World, dt: number) {
   world.projectiles = world.projectiles.filter((projectile) => {
@@ -22,7 +23,7 @@ export function stepProjectiles(world: World, dt: number) {
       enemy.knockback.x = projectile.direction.x * projectile.knockback
       enemy.knockback.z = projectile.direction.z * projectile.knockback
       world.hits++
-      if (enemy.health <= 0) world.kills++
+      if (enemy.health <= 0) registerKill(world, enemy)
       if (projectile.hitIds.length >= projectile.maxHits) return false
     }
     if (wall !== Infinity) return false

@@ -55,7 +55,8 @@ test('production scene: all-around aiming, stationary cursor during movement, re
   await expectCursorAlignment(page, 820, 570)
   await page.screenshot({ path: 'test-results/m1-resized.png' })
   await page.keyboard.down('KeyD')
-  await expect.poll(async () => (await snapshot(page)).player.x, { timeout: 8000 }).toBe(11.6)
+  // 40 x 40 arena: the 0.4-radius player stops at 19.6.
+  await expect.poll(async () => (await snapshot(page)).player.x, { timeout: 8000 }).toBe(19.6)
   await page.keyboard.up('KeyD')
   expect(errors).toEqual([])
 })

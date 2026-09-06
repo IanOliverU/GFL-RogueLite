@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { Color, InstancedMesh, Object3D } from 'three'
 import type { Simulation } from '../game/core/Simulation'
 import { ENEMY_DEFINITIONS, MAX_ENEMIES, MAX_HOSTILE_PROJECTILES, MAX_PROJECTILES, PURSUER } from '../game/data/arena'
+import { MAX_GEMS } from '../game/data/progression'
 import { warningPath } from '../game/systems/rangedAttacks'
 
 const transform = new Object3D()
@@ -17,6 +18,7 @@ export function CombatVisuals({ simulation }: { simulation: Simulation }) {
   const health = useRef<InstancedMesh>(null)
   const warningCore = useRef<InstancedMesh>(null)
   const warningGlow = useRef<InstancedMesh>(null)
+  const gems = useRef<InstancedMesh>(null)
   useFrame(() => {
     const world = simulation.world
     if (enemies.current && health.current) {
@@ -66,6 +68,18 @@ export function CombatVisuals({ simulation }: { simulation: Simulation }) {
       })
       hostile.current.instanceMatrix.needsUpdate = true
     }
+    if (gems.current) {
+      gems.current.count = Math.min(world.gems.length, MAX_GEMS)
+      world.gems.slice(0, MAX_GEMS).forEach((gem, index) => {
+        transform.position.set(gem.x, 0.12, gem.z)
+        transform.rotation.set(0, world.elapsed * 2 + index, 0)
+        const scale = gem.value >= 4 ? 1.4 : 1
+        transform.scale.set(scale, scale, scale)
+        transform.updateMatrix()
+        gems.current!.setMatrixAt(index, transform.matrix)
+      })
+      gems.current.instanceMatrix.needsUpdate = true
+    }
     // Telegraph stripes mirror the real projectile path: locked direction, stopped by cover/perimeter.
     const warnings = world.enemies.filter((enemy) => enemy.attack && enemy.kind === 'ranged' && enemy.health > 0)
     for (const stripe of [warningCore, warningGlow]) {
@@ -95,6 +109,9 @@ export function CombatVisuals({ simulation }: { simulation: Simulation }) {
     </instancedMesh>
     <instancedMesh ref={hostile} args={[undefined, undefined, MAX_HOSTILE_PROJECTILES]} frustumCulled={false}>
       <sphereGeometry args={[0.13, 10, 10]} /><meshBasicMaterial color="#ff8f5e" />
+    </instancedMesh>
+    <instancedMesh ref={gems} args={[undefined, undefined, MAX_GEMS]} frustumCulled={false}>
+      <octahedronGeometry args={[0.14]} /><meshBasicMaterial color="#7fe3a8" />
     </instancedMesh>
     <instancedMesh ref={warningGlow} args={[undefined, undefined, MAX_ENEMIES]} frustumCulled={false}>
       <boxGeometry args={[0.4, 0.02, 1]} /><meshBasicMaterial color="#ff5d4d" transparent opacity={0.28} depthWrite={false} />

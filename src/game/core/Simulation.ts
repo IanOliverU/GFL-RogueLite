@@ -8,10 +8,12 @@ import { stepEnemies } from '../systems/enemies'
 import { finishDashStep, stepDash } from '../systems/dash'
 import { stepRangedAttacks } from '../systems/rangedAttacks'
 import { stepEnemyProjectiles } from '../systems/enemyProjectiles'
+import { applyChoice, grantXp, offerChoices, stepGems, stepPulse } from '../systems/progression'
+import { xpForLevel, type UpgradeChoice } from '../data/progression'
 
 export const FIXED_STEP = 1 / 60
 const MAX_STEPS = 6
-export type RunStatus = 'selection' | 'playing' | 'paused' | 'game_over'
+export type RunStatus = 'selection' | 'playing' | 'paused' | 'levelup' | 'game_over'
 export type PauseReason = 'manual' | 'focus' | 'graphics'
 
 /** Owns gameplay state; no browser, React or Three.js dependencies. */
@@ -23,7 +25,7 @@ export class Simulation {
   private status: RunStatus = 'playing'
   pauseReason: PauseReason = 'manual'
   private readonly listeners = new Set<() => void>()
-  private hud = { health: 100, ammo: 6, reloading: false, kills: 0, shots: 0, dashCooldown: 0, dashing: false, elapsed: 0 }
+  private hud = { health: 100, maxHealth: 100, ammo: 6, reloading: false, kills: 0, shots: 0, dashCooldown: 0, dashing: false, elapsed: 0, level: 1, xp: 0, xpNeed: 5, evolution: false }
   private dashRequested = false
   private clampResumeDelta = false
 
@@ -34,26 +36,57 @@ export class Simulation {
   getHud = () => this.hud
   private publishHud() {
     const world = this.world
-    const next = { health: world.health, ammo: world.weapon.ammo, reloading: world.weapon.reloadRemaining > 0, kills: world.kills, shots: world.shots, dashCooldown: Math.ceil(world.dash.cooldown * 10) / 10, dashing: world.dash.remaining > 0, elapsed: Math.floor(world.elapsed) }
+    const next = { health: world.health, maxHealth: world.maxHealth, ammo: world.weapon.ammo, reloading: world.weapon.reloadRemaining > 0, kills: world.kills, shots: world.shots, dashCooldown: Math.ceil(world.dash.cooldown * 10) / 10, dashing: world.dash.remaining > 0, elapsed: Math.floor(world.elapsed), level: world.level, xp: world.xp, xpNeed: xpForLevel(world.level), evolution: world.evolution }
     if (JSON.stringify(next) !== JSON.stringify(this.hud)) {
       this.hud = next
       this.listeners.forEach((listener) => listener())
     }
   }
 
-  startRun(dollId: CharacterId): void {
+  startRun(dollId: CharacterId, opts?: { bonusXp?: number }): void {
     this.world = createWorld(dollId, true)
+    this.choiceVersion = 0
     this.clearInput()
     this.accumulator = 0
     this.clampResumeDelta = false
     this.pauseReason = 'manual'
     this.status = 'playing'
+    // Development-only shortcut (e.g. ?devxp=200): bonus XP for testing
+    // progression. Never granted on retry/selection flows or in normal play.
+    if ((opts?.bonusXp ?? 0) > 0) grantXp(this.world, Math.floor(opts!.bonusXp!))
     this.publishHud()
     this.listeners.forEach((listener) => listener())
   }
 
+  getChoices = (): UpgradeChoice[] => offerChoices(this.world)
+  /** Bumps whenever the pending choice list changes so the dialog re-renders. */
+  getChoiceVersion = (): number => this.choiceVersion
+  private choiceVersion = 0
+
+  /** Apply a level-up choice. Returns false when there is no choice to make. */
+  chooseUpgrade(index: number): boolean {
+    if (this.status !== 'levelup') return false
+    const choices = offerChoices(this.world)
+    const choice = choices[index]
+    if (!choice || this.world.pendingLevels <= 0) return false
+    applyChoice(this.world, choice)
+    this.world.pendingLevels--
+    this.choiceVersion++
+    this.clearInput()
+    this.accumulator = 0
+    if (this.world.pendingLevels <= 0) {
+      // Last queued level resolved: resume with a clamped delta, no catch-up.
+      this.clampResumeDelta = true
+      this.status = 'playing'
+    }
+    this.publishHud()
+    this.listeners.forEach((listener) => listener())
+    return true
+  }
+
   returnToSelection(): void {
     this.world = createWorld(this.world.dollId)
+    this.choiceVersion = 0
     this.clearInput()
     this.accumulator = 0
     this.clampResumeDelta = false
@@ -117,8 +150,10 @@ export class Simulation {
       if (this.world.combat) {
         stepEnemies(this.world, FIXED_STEP)
         if (this.world.health > 0) {
+          stepPulse(this.world, FIXED_STEP)
           stepWeapon(this.world, FIXED_STEP, this.pointer !== null)
           stepProjectiles(this.world, FIXED_STEP)
+          stepGems(this.world, FIXED_STEP)
           stepRangedAttacks(this.world, FIXED_STEP)
           stepEnemyProjectiles(this.world, FIXED_STEP, playerStart)
         }
@@ -129,6 +164,14 @@ export class Simulation {
       steps++
       if (this.world.health <= 0) {
         this.status = 'game_over'
+        this.accumulator = 0
+        this.clearInput()
+        this.listeners.forEach((listener) => listener())
+        break
+      }
+      if (this.world.combat && this.world.pendingLevels > 0) {
+        // Queued level-ups open the upgrade screen with everything frozen.
+        this.status = 'levelup'
         this.accumulator = 0
         this.clearInput()
         this.listeners.forEach((listener) => listener())
