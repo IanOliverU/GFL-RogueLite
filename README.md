@@ -1,0 +1,116 @@
+﻿# GFL2 Exilium Fan Game — M1 playground
+
+Independent Girls' Frontline-inspired browser fan-game prototype. Ian is director/producer and playtester. M0 and M1 are implemented and technically verified; director acceptance is pending. Stop here for review before authorizing M2.
+
+## Run locally
+
+The application root is **`C:\Users\MY PC\Desktop\GFL Game`**. Open this folder directly in VS Code; the project no longer uses a nested starter folder. Use Node.js 24.x (verified with **24.12.0**) and npm (verified with **11.7.0**).
+
+```powershell
+cd "C:\Users\MY PC\Desktop\GFL Game"
+npm ci
+npm run dev
+```
+
+Open the URL printed by Vite, normally **http://127.0.0.1:5173/**. If already in the application root, omit `cd`. The server binds to loopback only. Stop it with Ctrl+C in its terminal.
+
+```powershell
+npm run typecheck
+npm run lint
+npm run test
+npm run build
+npm run preview
+```
+
+`preview` serves the production build locally, normally at http://127.0.0.1:4173/. Build again after source edits before previewing or running browser tests.
+
+```powershell
+npm run build
+npm run test:browser
+```
+
+The browser suite uses installed Google Chrome in headless mode and starts a local production preview (or reuses an existing preview on port 4173). If Chrome is absent, install Google Chrome first. Tests use software WebGL for repeatability; these are correctness checks, not GPU performance measurements. Screenshots and test output go into ignored `test-results/`. Add `?inspect=1` to a local game URL to expose read-only frame snapshots on the canvas for automated checks; normal play does not write this diagnostic data.
+
+## Playable behavior
+
+- WASD moves on the XZ floor at 6 units/second with equal diagonal speed. Opposing keys cancel.
+- A fixed elevated orthographic camera follows 45% of player translation without rotating. The 24 × 24 arena bounds the entire 0.4-unit-radius player collider.
+- The upright placeholder uses a bottom-center foot origin. The foot ring marks its ground position.
+- Move the mouse over the arena view: the gold direction marker follows the shared aim direction; the target ring marks the cursor projected onto Y=0. Projection uses the actual canvas rectangle after camera movement and on every frame, including resize with a stationary cursor.
+- Aim can extend outside the bounded arena onto the same floor plane. A missing or near-zero target preserves the last valid direction. Leaving the canvas hides the cursor target.
+- Escape or Pause opens the pause interface. Escape or Resume deliberately resumes. Focus loss/hidden tabs pause, clear input and require a deliberate resume with fresh movement keys.
+- WebGL startup errors show a fallback message; context loss pauses and offers recovery/reload guidance.
+
+No enemies, damage, XP, dash, weapon systems, full roster, audio, storage, or polished art are implemented. All visible assets are project-created procedural geometry/flat planes; Blender was not needed or used. No official sprites are included.
+
+## Actual structure
+
+```text
+src/
+  app/              React shell, entry point, layout styles
+  game/
+    core/           World state, run status, fixed 60 Hz simulation
+    systems/        Movement and renderer-independent targeting math
+  render/           Arena, foot-anchored planes, aim visuals, camera projection
+  platform/         Browser input, focus/visibility and graphics lifecycle
+  ui/               Pause dialog and render-error boundary
+tests/
+  core/             Simulation timing and pause lifecycle
+  systems/          Movement, bounds, targeting/projection geometry
+  browser/          Production Chrome movement/aim/pause checks
+docs/               Design baseline, decisions, provenance and evidence
+```
+
+Simulation contains no React, browser or Three.js imports. React subscribes only to lifecycle changes. The render loop advances the simulation, translates the camera, projects the cursor, then synchronizes visual transforms. Catch-up is bounded to six simulation steps per frame; long stalls intentionally discard excess time. Rendering currently uses the latest fixed-step position without interpolation.
+
+`src/game/data/`, `public/assets/`, and `assets-source/` will be created when typed content or actual asset files require them. No empty future-system folders are scaffolded. Source geometry lives in `src/render/`. Keep optimized runtime assets separate from editable art sources when introduced. `.gitignore` excludes dependencies, builds, test captures, temporary files, secrets, and Blender backup files while allowing useful `.blend` source files.
+
+## Pinned toolchain
+
+`package-lock.json` pins the full install; do not replace it with a second package-manager lockfile.
+
+| Package | Verified version |
+| --- | --- |
+| React / React DOM | 19.2.8 |
+| React Three Fiber | 9.7.0 |
+| Three.js / Three types | 0.185.1 / 0.185.4 |
+| Vite / React plugin | 8.2.2 / 6.1.1 |
+| TypeScript | 5.9.3 |
+| ESLint / typescript-eslint | 10.10.0 / 8.69.0 |
+| Vitest / Playwright | 5.0.0 / 1.63.0 |
+
+Compatibility was checked against official [R3F documentation](https://github.com/pmndrs/react-three-fiber/blob/master/docs/getting-started/introduction.mdx), [Vite requirements](https://vite.dev/guide/), [Three.js raycasting documentation](https://threejs.org/docs/pages/Raycaster.html), and npm peer/engine metadata. R3F 9 uses React 19; TypeScript 5.9 fits the lint tooling's supported range.
+
+## Verification and known limitations
+
+Relocation verified on 2026-09-06 from **`C:\Users\MY PC\Desktop\GFL Game`**: `npm run build`, `npm run typecheck`, `npm run lint`, `npm run test` (13 passed), and the existing `npm run test:browser` suite (3 passed) all completed successfully. Existing dependencies worked after the move; no package or lockfile changes/reinstall were needed. Production output was regenerated. Checksums confirm the application, tests and configuration were preserved unchanged. The old folder was removed only after transfer verification and an empty-directory check. Previous browser captures and the transfer manifest are preserved in ignored `.tmp/relocation-before/`. Director acceptance remains pending; the original M0/M1 evidence and manual limitations below still apply.
+
+On 2026-09-06, build (including typecheck), standalone typecheck, lint, 13 unit tests, and 3 production Chrome browser tests passed. M0's minimal scene was also built, checked, and visually inspected before M1 implementation. The final scene screenshots were inspected at 1280 × 800 and 960 × 700; browser assertions measured cursor projection error below 0.1 CSS pixel. See [milestone evidence](docs/MILESTONES.md).
+
+Vite reports a bundle-size warning: the main JavaScript bundle is approximately 1.08 MB minified / 298 KB gzip, primarily the rendering stack. It is not a build failure. Browser coverage is headless Chrome with software WebGL; no 60 FPS or reference-GPU claim is made. Real OS Alt-Tab, browser zoom/DPR changes, other browsers, context recovery on a real graphics reset, and subjective movement feel remain manual checks. Native browser-control connection was unavailable; automated Chrome tests were available. No Git repository existed; no commit, push or deployment was performed.
+
+## Director playtest
+
+- Move with each key, then diagonally; check responsiveness and equal speed.
+- Walk every edge/corner; feet must stay inside the gold boundary and slide along edges.
+- Aim around all sides and near the feet. The gold marker should point toward the cursor's floor position.
+- Hold movement with a stationary mouse; targeting should remain under the cursor as the camera follows.
+- Resize the window and try browser zoom, then repeat aiming.
+- Pause while holding a key; Alt-Tab away while moving. Return and deliberately resume: no drift, held key or catch-up jump should remain.
+
+Report what you tried, expected, and observed. Director feedback is recorded separately from technical checks.
+
+## Documentation and next scope
+
+- [Agent instructions](AGENTS.md)
+- [Original kickoff and local setup](START_HERE.md)
+- [Game design](docs/GAME_DESIGN.md)
+- [Technical plan](docs/TECHNICAL_PLAN.md)
+- [Milestones and status](docs/MILESTONES.md)
+- [Art and map pipeline](docs/ART_AND_MAP_PIPELINE.md)
+- [Asset manifest](docs/ASSET_MANIFEST.md)
+- [Playtest and verification](docs/PLAYTEST_CHECKLIST.md)
+- [Decisions and sources](docs/DECISIONS.md)
+
+The eventual first prototype is Sabrina in a checkpoint courtyard with shotgun combat, two enemy behaviors, dash, XP, limited upgrades and one evolution over three to five minutes. Six dolls remain a later roster target. After M1 review and explicit authorization, M2 introduces one pursuing enemy, Sabrina's shotgun, damage/death and reliable restart.
+

@@ -1,0 +1,47 @@
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; width: 100%; height: 100%; background: #111c20; }
+body { font-family: 'Segoe UI', Arial, sans-serif; color: #e0e9df; }
+button { font: inherit; cursor: pointer; }
+button:focus-visible { outline: 2px solid #f5ce7a; outline-offset: 4px; }
+.app-shell { height: 100%; min-height: 360px; display: flex; flex-direction: column; }
+.topbar { min-height: 94px; display: flex; align-items: center; gap: 20px; padding: 16px 32px; border-bottom: 1px solid #3b4b49; }
+.brand-mark { font-size: 34px; font-weight: 800; color: #eac782; display: flex; align-items: baseline; letter-spacing: -3px; }
+.brand-mark span { font-size: 13px; letter-spacing: 0; margin-left: 4px; }
+.eyebrow { font-size: 10px; letter-spacing: 2.4px; color: #9cacaa; margin: 0 0 6px; }
+h1 { font-size: 21px; font-weight: 500; margin: 0; letter-spacing: 0.3px; }
+.build-tag { margin-left: auto; color: #eac782; font-size: 13px; border-left: 1px solid #4c5852; padding-left: 24px; }
+.build-tag span { color: #9cacaa; font-size: 10px; letter-spacing: 1px; margin-left: 8px; }
+.pause-button { border: 1px solid #52635e; color: #dde7dd; background: #22312f; border-radius: 4px; padding: 9px 12px; font-size: 12px; }
+.pause-button:disabled { opacity: 0.45; cursor: default; }
+kbd { font: 11px 'Segoe UI', sans-serif; padding: 3px 6px; border: 1px solid #586b62; border-radius: 3px; color: #cddbd1; }
+.pause-button kbd { margin-left: 14px; }
+.arena-view { flex: 1; min-height: 0; position: relative; overflow: hidden; }
+.arena-view canvas { display: block; cursor: crosshair; }
+.scene-label, .scene-note { position: absolute; pointer-events: none; left: 30px; font-size: 10px; letter-spacing: 1.5px; text-shadow: 0 2px 4px #152328; }
+.scene-label { top: 24px; color: #c3d3c3; }
+.status-dot { display: inline-block; width: 6px; height: 6px; background: #b9e5bd; border-radius: 50%; margin-right: 7px; }
+.scene-label small, .scene-note small { display: block; color: #96aaa5; font-size: 9px; margin-top: 9px; letter-spacing: 1px; }
+.scene-note { bottom: 24px; font-size: 13px; letter-spacing: 0.3px; }
+.scene-note span { color: #eac782; margin-right: 12px; font-size: 11px; }
+.control-bar { min-height: 67px; padding: 14px 30px; display: flex; align-items: center; gap: 30px; border-top: 1px solid #3b4b49; font-size: 12px; color: #b7c6bc; }
+.control-bar > div { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+.key-group { display: flex; gap: 3px; }
+.cursor-icon { color: #eac782; font-size: 25px; }
+.control-bar p { color: #879e97; font-size: 11px; }
+.prototype-tag { margin-left: auto; font-size: 9px; letter-spacing: 1.3px; color: #82978e; }
+.pause-backdrop { position: absolute; inset: 0; background: #071012b8; display: grid; place-items: center; z-index: 5; }
+.pause-card { width: min(420px, 90%); padding: 32px; border: 1px solid #718072; background: #1b2c2e; box-shadow: 0 24px 80px #0007; }
+.pause-card h2 { font-size: 26px; font-weight: 500; margin: 14px 0; }
+.pause-card p:not(.eyebrow) { color: #adbbb2; font-size: 14px; line-height: 1.6; }
+.pause-card button { width: 100%; padding: 14px; background: #ebcb8d; color: #24312e; border: 0; margin: 14px 0; text-align: left; }
+.pause-card button span { float: right; }
+.pause-card small { color: #92a69c; font-size: 11px; }
+.graphics-error { padding: 40px; }
+@media (max-width: 800px) {
+  .topbar { padding: 12px 18px; min-height: 78px; gap: 12px; }
+  h1 { font-size: 16px; }
+  .build-tag span, .control-bar p, .prototype-tag { display: none; }
+  .build-tag { padding-left: 12px; }
+  .control-bar { padding: 12px 18px; gap: 18px; min-height: 58px; }
+  .scene-label, .scene-note { left: 18px; }
+}
