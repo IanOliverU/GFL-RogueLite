@@ -1,5 +1,7 @@
 # Starting development locally
 
+> Current scope update (2026-09-06): Ian authorized expanded M2 with six selectable basic-weapon dolls and shared combat. Use [README.md](README.md) to run it and [MILESTONES.md](docs/MILESTONES.md) for actual status/evidence. M2 acceptance is pending; do not begin M3. The M0/M1 kickoff below remains historical.
+
 > M0/M1 implementation update (2026-09-06): this project is now runnable. Use the actual commands in [README.md](README.md). The original pack setup and kickoff below are retained as handoff history, not the current implementation status. M1 awaits Ian's review; do not rerun scaffolding or begin M2 automatically.
 
 > Location corrected (2026-09-06): open `C:\Users\MY PC\Desktop\GFL Game` directly in VS Code. From that root, run `npm ci` if dependencies are missing, then `npm run dev`. The existing M0/M1 application was relocated without rebuilding its implementation.

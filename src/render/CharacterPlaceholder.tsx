@@ -1,5 +1,5 @@
 /** Upright XY planes: every piece is above the bottom-center foot origin. */
-export function CharacterPlaceholder() {
+export function CharacterPlaceholder({ color = '#b0d7ca' }: { color?: string }) {
   return <group>
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
       <circleGeometry args={[0.4, 32]} /><meshBasicMaterial color="#101c20" transparent opacity={0.65} />
@@ -8,7 +8,7 @@ export function CharacterPlaceholder() {
       <ringGeometry args={[0.4, 0.46, 32]} /><meshBasicMaterial color="#b8efce" />
     </mesh>
     <mesh position={[0, 1.15, 0]}>
-      <planeGeometry args={[0.86, 1.35]} /><meshBasicMaterial color="#b0d7ca" />
+      <planeGeometry args={[0.86, 1.35]} /><meshBasicMaterial color={color} />
     </mesh>
     <mesh position={[0, 1.95, 0.01]}>
       <circleGeometry args={[0.35, 8]} /><meshBasicMaterial color="#f4dcad" />

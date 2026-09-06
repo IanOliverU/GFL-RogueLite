@@ -7,7 +7,10 @@ No official assets have been supplied or cleared by this pack. Availability onli
 | doll-sabrina-placeholder | M1 foot-anchored doll stand-in | `src/render/CharacterPlaceholder.tsx` | Original project-created geometry; no official sprite/art used | Upright flat planes/circles with bottom-center origin; static | Implemented; director review pending |
 | arena-m1-placeholder | M1 floor, grid and bounded perimeter | `src/render/Arena.tsx` | Original project-created geometry | Procedural planes, boxes, grid and rings; no imported textures | Implemented; director review pending |
 | aim-m1-placeholder | Shared direction marker and cursor target | `src/render/AimIndicator.tsx` | Original project-created geometry | Procedural flat meshes; no imported assets | Implemented; director review pending |
-| enemy-pursuer-placeholder | Pursuing enemy | To create locally | Project-created placeholder | Primitive/plane | Needed |
+| enemy-pursuer-placeholder | M2 pursuing enemy and health bar | `src/render/CombatVisuals.tsx` | Original project-created geometry | Batched hexagonal cylinder and flat health bar; hit color flash | Implemented; director review pending |
+| dolls-six-placeholder | M2 selection silhouettes and six doll colors | `src/ui/CharacterSelection.tsx`, `src/app/styles.css`, `src/render/CharacterPlaceholder.tsx` | Original project-created CSS/geometry; no official art | Labeled CSS silhouettes; shared upright planes with six colors | Implemented; director review pending |
+| m2-projectile-placeholder | Shared weapon tracers | `src/render/CombatVisuals.tsx` | Original project-created geometry | Batched thin boxes; longer sniper tracer | Implemented; director review pending |
+| m2-cover-placeholder | Shared visible/colliding cover | `src/render/Arena.tsx`, `src/game/data/arena.ts` | Original project-created geometry | Box with shared collision dimensions | Implemented; director review pending |
 | enemy-ranged-placeholder | Ranged enemy | To create locally | Project-created placeholder | Primitive/plane | Needed |
 | map-checkpoint-kit | Modular map | To create in code/Blender | Record sources for textures | GLB | Needed |
 | fx-shotgun | Muzzle/impact/shotgun effects | To create | Record generation/source | Reusable effects | Needed |

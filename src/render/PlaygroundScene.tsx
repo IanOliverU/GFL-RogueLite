@@ -8,6 +8,8 @@ import { Arena } from './Arena'
 import { CharacterPlaceholder } from './CharacterPlaceholder'
 import { AimIndicator } from './AimIndicator'
 import { projectCursor, updateCamera } from './cameraProjection'
+import { CombatVisuals } from './CombatVisuals'
+import { CHARACTERS } from '../game/data/characters'
 
 const screenPoint = new Vector3()
 
@@ -21,9 +23,12 @@ export function PlaygroundScene({ simulation }: { simulation: Simulation }) {
 
   useFrame(({ camera }, delta) => {
     if (!(camera instanceof OrthographicCamera)) return
-    simulation.advance(delta)
-    const world = simulation.world
     const rect = gl.domElement.getBoundingClientRect()
+    simulation.advance(delta, (player) => {
+      updateCamera(camera, player, rect.width, rect.height)
+      return simulation.pointer ? projectCursor(camera, simulation.pointer, rect) : null
+    })
+    const world = simulation.world
     updateCamera(camera, world.player, rect.width, rect.height)
     if (simulation.getStatus() === 'playing' && simulation.pointer) {
       updateAim(world, projectCursor(camera, simulation.pointer, rect))
@@ -45,16 +50,21 @@ export function PlaygroundScene({ simulation }: { simulation: Simulation }) {
         ...world, status: simulation.getStatus(), held: [...simulation.held],
         camera: camera.position.toArray(),
         targetScreen: { x: rect.left + (screenPoint.x + 1) * rect.width / 2, y: rect.top + (1 - screenPoint.y) * rect.height / 2 },
+        enemiesScreen: world.enemies.map((enemy) => {
+          screenPoint.set(enemy.x, 0, enemy.z).project(camera)
+          return { id: enemy.id, x: rect.left + (screenPoint.x + 1) * rect.width / 2, y: rect.top + (1 - screenPoint.y) * rect.height / 2 }
+        }),
       })
     }
-  })
+  }, -1)
 
   return <>
     <color attach="background" args={['#152328']} />
     <ambientLight intensity={1.7} />
     <directionalLight position={[-6, 14, 8]} intensity={2} />
-    <Arena />
-    <group ref={character}><CharacterPlaceholder /></group>
+    <Arena obstacles={simulation.world.obstacles} />
+    <group ref={character}><CharacterPlaceholder color={CHARACTERS[simulation.world.dollId].color} /></group>
     <AimIndicator directionRef={direction} targetRef={target} />
+    <CombatVisuals simulation={simulation} />
   </>
 }

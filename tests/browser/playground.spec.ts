@@ -16,7 +16,7 @@ async function snapshot(page: Page): Promise<Snapshot> {
 }
 
 async function start(page: Page) {
-  await page.goto('/?inspect=1')
+  await page.goto('/?inspect=1&mode=playground')
   await expect(page.locator('canvas')).toHaveAttribute('data-playground', /player/)
   if (await page.getByRole('dialog').isVisible()) await page.getByRole('button', { name: 'Resume playground' }).click()
   await expect.poll(async () => (await snapshot(page)).status).toBe('playing')

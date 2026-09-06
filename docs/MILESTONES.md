@@ -10,13 +10,13 @@ Current application root: `C:\Users\MY PC\Desktop\GFL Game`. The existing M0/M1 
 | --- | --- | --- | --- |
 | M0 Foundation | Technically complete | Build/typecheck/lint passed; dev starts; production minimal scene inspected in headless Chrome | Pending Ian's review |
 | M1 Movement and aiming | Technically complete | Build/typecheck/lint; 13 unit tests; 3 production browser tests; screenshots inspected | Pending Ian's review |
-| M2 Combat | Planned | None | Not recorded |
+| M2 Combat — expanded six-doll scope | Technically complete | Build/typecheck/lint; 38 unit tests; 10 production browser tests; six-doll lifecycle verified | Acceptance pending Ian's review |
 | M3 Evasion and pressure | Planned | None | Not recorded |
 | M4 Run progression | Planned | None | Not recorded |
 | M5 Visual prototype | Planned | None | Not recorded |
 | M6 First playable | Planned | None | Not recorded |
 
-The kickoff authorizes M0 then M1. Mark one milestone In progress at a time. Completion means criteria have evidence; director feedback is a separate field and must not be invented. Record unperformed checks as pending. No automatic deployment or release follows completion.
+The original kickoff authorized M0 then M1; Ian subsequently authorized the expanded six-doll M2 below. M2 is the current stopping point. Mark one milestone In progress at a time. Completion means criteria have evidence; director feedback is a separate field and must not be invented. Record unperformed checks as pending. No automatic deployment or release follows completion.
 
 ## M0 — Foundation
 
@@ -32,9 +32,9 @@ Exit: all-around aim works while moving and after resizing; camera translation d
 
 ## M2 — Combat
 
-Implement Sabrina shotgun, fire-range gate, volley timing, swept projectile collision, pursuing enemy, health, hit feedback, death, and restart. Gun fires along aim, never snaps to target. Provide a static obstacle to verify wall hits.
+Approved scope update (2026-09-06): implement character selection for Sabrina, Qiongjiu, Tololo, Mosin-Nagant, Peritya and Vepley, each with a distinct data-driven basic weapon. This supersedes Sabrina-only M2 and the later basic-roster rollout. Shared combat includes fire-range gating, volley/burst timing, magazines/reload, swept projectile collision, piercing, knockback, a pursuing enemy type, health, hit feedback, death, retry with the same doll and return to selection. Gun fires along cursor aim, never snaps to a target. Provide a static obstacle to verify wall hits. Use clearly labeled original placeholders and prototype fan-game adaptations, not claimed official kits.
 
-Exit: hits/misses/piercing behavior match visuals, damage does not continue after death, restart does not duplicate listeners/entities, and fire timing is frame-rate independent.
+Exit: all six can be selected, start, fire distinct weapons, damage/defeat enemies, die and restart. Test bursts, piercing, knockback, reload, pause/focus and complete run-state resets when retrying or switching dolls. Hits/misses/piercing match visuals; damage stops after death; restarts do not duplicate listeners/entities; firing is frame-rate independent. Three-skill kits, ultimates, evolutions, polished animation and M3+ systems remain excluded. Stop after expanded M2; acceptance stays pending director review.
 
 ## M3 — Evasion and pressure
 
@@ -62,7 +62,7 @@ Exit: an independent tester can start, fight, upgrade, evolve when requirements 
 
 ## Later expansion
 
-Add Mosin-Nagant second to validate contrasting weapon behavior, then remaining dolls. Expand to full three-skill kits, more equipment, roughly ten-minute pacing and additional arenas after feedback. Room-based structure/mobile/online features require an explicit scope update.
+The six basic weapons and selection are now authorized in M2. Full three-skill kits, more equipment, roughly ten-minute pacing and additional arenas remain later work after feedback. Room-based structure/mobile/online features require an explicit scope update.
 
 ## Evidence log template
 
@@ -90,6 +90,20 @@ Add Mosin-Nagant second to validate contrasting weapon behavior, then remaining 
 - Browser coverage: fresh production preview started by the existing Playwright configuration, installed headless Chrome 152.0.7977.77 with software WebGL. The unchanged tests covered all-around aiming, stationary cursor during movement/camera follow, resizing, boundaries, pause/resume and synthetic focus loss. These are automated checks, not new director playtest feedback.
 - Limitations retained: the ~1.08 MB minified / ~298 KB gzip JavaScript bundle still triggers Vite's size warning. Real OS Alt-Tab/tab switching, browser zoom/DPR changes, other browsers, actual graphics context recovery, subjective movement feel and reference-GPU performance remain manual checks. Focus-loss testing still uses a synthetic event; no new performance or director-acceptance claim is made.
 - Director acceptance: pending Ian's review. Next action: open the corrected root in VS Code, run `npm run dev`, and playtest M1. No further development is authorized by this relocation task.
+
+### Expanded M2 implementation and verification — 2026-09-06
+
+- Authorization: Ian explicitly expanded M2 from Sabrina-only combat to all six playable dolls and character selection, overriding the earlier basic-roster restriction. Full skills, ultimates, evolutions, polished animations and M3+ systems remain excluded. Acceptance is pending Ian's review.
+- Starting state: application root `C:\Users\MY PC\Desktop\GFL Game`; Git now exists and was clean on `main` tracking `origin/main` at inspection. M0/M1 source and verification history retained. Existing package versions/lockfile reused without changes. No commits, push or deployment made.
+- UI: six named, selectable cards show basic weapon descriptions, explicit placeholder labels and selected state. Start uses the chosen doll. Combat HUD shows doll/weapon, health, ammunition/reload and kills. Game over offers same-doll retry and return to selection. Shared static flat geometry uses six placeholder colors; all art is project-created.
+- Combat: typed character/weapon/pursuer/obstacle data; one shared firing/burst/reload system; swept projectiles with sorted collision, enemy hit bookkeeping, bounded piercing and knockback; 40-HP pursuers with contact damage and navigation around one cover block. Up to 8 enemies and 192 projectiles; no wave/progression/XP system. M1 movement, foot anchor, camera and cursor aim are retained. Projection is sampled after movement before firing, and refreshed on idle render frames.
+- Lifecycle: selection, playing, paused and game_over are authoritative. Pause/focus clears held inputs and aim; simulation and weapon/reload timers freeze. Escape/focus cannot bypass selection or revive game over. Retry/switch replaces health, ammo, all weapon/hurt/spawn timers, entities, IDs, aim/input, elapsed time and counters. No extra listeners or timers are created on retry; leaving the arena unbinds browser listeners. M1 no-combat route is available at `?mode=playground`; its browser assertions were preserved with only the entry URL adjusted.
+- Checks: `npm run build`, standalone `npm run typecheck`, `npm run lint` and `git diff --check` passed. `npm run test`: 38 tests passed in 4 files (13 prior + 25 combat). `npm run test:browser`: all 10 tests passed in 1.8 minutes (6 doll lifecycles, 1 selection/switch lifecycle, 3 M1 regressions). Initial burst timing test needed floating-point tolerance rather than exact equality; the weapon timing itself matched the specified sequence. Final build retained the same production JS/CSS hashes as the full browser-tested build.
+- Unit evidence: every doll fired, dealt damage, killed, died, froze on death and restarted/switched with a pristine world; every magazine/reload checked, including paused reloads. Verified Qiongjiu's 0.1-second burst spacing and 0.55-second recovery, current-step aim, mid-burst pause/no queued fire without fresh aim, range/aim gate cancellation, even shotgun spread and distinct damage/cadence, 30/60/144 Hz firing counts, projectile cap, swept thin-target/tangent/overlap hits, distance-ordered three-enemy sniper piercing, no repeat hits, cover/perimeter stops, non-additive stronger Vepley impulse, collision-constrained knockback, pursuit around cover and bounded spawns.
+- Browser evidence: installed Chrome 152.0.7977.77, headless Playwright with software WebGL, Windows x64, Node 24.12.0/npm 11.7.0. For each doll: selected card/summary, started, aimed at the initial real pursuer, observed shots/hits/kills, paused during held movement, asserted frozen timers and empty inputs, dispatched synthetic blur/focus, deliberately resumed, left aim input to take contact damage, reached real game over, checked time remained frozen, retried and checked fresh HP/ammo/timers/projectiles/counters. Separate case returned to selection and switched Sabrina to Peritya. All recorded browser error arrays were empty. No simulated damage/death shortcut or mutable browser test control was introduced.
+- Visual evidence: inspected selection screenshot, Peritya combat/HUD screenshot and the live Sabrina arena with pursuer/health bar/cover. A focused Sabrina browser rerun passed after adding the arena capture. Generated captures are ignored under `test-results/`. No claim of manual human playtesting or official character likeness.
+- Known limitations/manual checks: provisional tuning; one enemy type; static placeholders; no enemy separation (pursuers can overlap); no audio or later systems. Software rendering is not a reference-GPU performance test. Physical Alt-Tab/tab visibility transitions, zoom/DPR, other browsers, real context recovery and subjective movement/weapon feel remain unverified manually. Reload/burst/piercing/knockback specifics are asserted by simulation tests; director comparison in the real browser remains pending. Vite still warns about the ~1.10 MB minified / ~302 KB gzip rendering bundle. Original M0/M1 and relocation limitations above remain historical evidence.
+- Next action: Ian compares the six weapons using `docs/PLAYTEST_CHECKLIST.md` and supplies acceptance/tuning feedback. Stop after M2; do not begin M3 without authorization.
 
 ### Template for subsequent milestones
 

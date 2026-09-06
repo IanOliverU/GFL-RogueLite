@@ -17,12 +17,22 @@ These are practical defaults from the planning discussion, adjustable through pl
 - Vite + React + TypeScript + R3F + Three.js; Phaser superseded by the 3D-environment direction.
 - Automatic fire toward cursor, gated by a live enemy within weapon range. No target snapping. Exact firing interaction remains worth an early playtest.
 - Dash first; a proper roll waits for a usable animation pipeline.
-- Sabrina first, Mosin-Nagant second, remaining roster later.
+- Original Sabrina-first/Mosin-Nagant-second basic-weapon rollout is superseded by the approved expanded M2 scope: all six basic weapons and character selection now belong to M2. Full skill kits remain later work.
 - One three-to-five-minute arena prototype, later approximately ten-minute runs.
 - Fixed-step simulation; local-only saves; no backend initially.
 - Full doll kit eventually has automatic skill, conditional skill and manual ultimate. This is our real-time adaptation, not verified official skill behavior.
 
 ## Open items that do not block M0/M1
+
+### Expanded M2 scope and implementation baseline — 2026-09-06
+
+- Ian explicitly authorized six selectable playable dolls in M2: Sabrina, Qiongjiu, Tololo, Mosin-Nagant, Peritya and Vepley. No three-skill kits, ultimates, evolutions, polished animation or later milestone systems. Stop at M2 and keep acceptance pending.
+- Use the weapon descriptions and tunable stat table in GAME_DESIGN as prototype fan-game adaptations. Do not claim they are verified official kits. Data in `src/game/data/characters.ts`, `weapons.ts` and `arena.ts` is authoritative for runtime values; shared systems implement all six without character-specific combat branches.
+- Preserve automatic firing along cursor aim, gated by any live enemy in weapon range. No aim snapping; no firing while in UI, paused, out of range or after death. Losing the firing gate cancels pending burst rounds. Empty magazines reload automatically, including with no enemy/aim, while all combat timers freeze when paused.
+- Sample aim after movement and camera translation before each simulation combat step; refresh presentation on render frames with no fixed step as well. The simulation accepts a projection callback without importing browser/Three objects. Shared direction controls both indicator and projectile initialization.
+- Use swept segment/circle and segment/box projectile tests sorted by earliest contact; cover wins ties. Sniper shots hit up to three distinct enemies, never the same enemy twice, and cannot pierce cover. Knockback refreshes (not sums) pellet impulses and obeys the same bounds/cover as movement. One pursuer type, up to eight active; projectiles capped at 192. Fixed-capacity render batches avoid projectile React state.
+- Replace world state completely on retry/switch: HP, ammo, burst/reload/cooldown timers, hurt timers, projectiles, enemies, spawn cursor, entity IDs, aim, input, counters and elapsed time. Explicit selection/playing/paused/game_over states prevent Escape/focus from starting a run or reviving a dead one.
+- Preserve M1's no-combat playground at `?mode=playground` using the same simulation/rendering foundation. M1 browser checks retain all assertions and use that route. M0/M1 and relocation evidence remains historical; Git was clean on `main` at the start of M2. No dependency changes required.
 
 ### M0/M1 implementation decisions — 2026-09-06
 

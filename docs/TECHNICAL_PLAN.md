@@ -30,6 +30,8 @@ Create folders when used, not as empty scaffolding for the entire release.
 
 ## Coordinates and aiming
 
+M2 implementation: typed basic doll/weapon/enemy/cover definitions live in `src/game/data/`. Shared `weapons`, `projectiles`, `enemies` and `collision` systems operate on the core world. Simulation accepts a renderer-supplied floor-projection callback after movement, before combat, so shots use the current camera and cursor even during follow. Rendering synchronizes fixed-capacity enemy/projectile batches after simulation. React receives lifecycle and changed HUD values (HP/ammo/reload/kill/shot counters), not per-projectile updates. Selection and game-over screens own screen UI; retry or switching creates a fresh authoritative world. M1 playground remains an optional no-combat route.
+
 XZ is the gameplay plane at Y=0, with Y up. Character position and collision are anchored at the feet. Sprites are upright planes with a consistent bottom-center pivot. Camera yaw/tilt are fixed; translation may follow the player. Do not reorient sprites toward each translated camera position, which can cause jitter; align them consistently with the fixed view direction.
 
 Convert pointer coordinates relative to the actual canvas rectangle into normalized device coordinates. Project through the current camera and intersect the gameplay plane. Normalize target-minus-player in XZ. Handle a missing intersection or near-zero vector by retaining the last valid direction. Apply that direction to all aiming presentation and projectile initialization. Recompute after camera movement and resize even when the mouse is stationary. UI pointer events do not reach combat.

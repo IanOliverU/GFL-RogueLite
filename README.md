@@ -1,6 +1,6 @@
-﻿# GFL2 Exilium Fan Game — M1 playground
+﻿# GFL2 Exilium Fan Game — expanded M2 combat prototype
 
-Independent Girls' Frontline-inspired browser fan-game prototype. Ian is director/producer and playtester. M0 and M1 are implemented and technically verified; director acceptance is pending. Stop here for review before authorizing M2.
+Independent Girls' Frontline-inspired browser fan-game prototype. Ian is director/producer and playtester. M0/M1 are preserved, and the approved expanded M2 adds six selectable dolls with distinct basic weapons and shared combat. These are prototype fan-game adaptations, not verified official kits. M2 acceptance is pending Ian's review; stop here before M3.
 
 ## Run locally
 
@@ -33,6 +33,21 @@ The browser suite uses installed Google Chrome in headless mode and starts a loc
 
 ## Playable behavior
 
+The default screen lets you choose Sabrina, Qiongjiu, Tololo, Mosin-Nagant, Peritya or Vepley, with a weapon summary, selected state and labeled placeholder art. Select a doll, then **Start run**. After game over, **Retry with [doll]** resets the same doll, or **Return to selection** lets you switch.
+
+| Doll | Basic weapon comparison |
+| --- | --- |
+| Sabrina | Broad, close-range seven-pellet shotgun; heavier volleys |
+| Qiongjiu | Three-round assault-rifle bursts with a recovery gap |
+| Tololo | Faster sustained rifle fire |
+| Mosin-Nagant | Slow, powerful sniper shots; up to three distinct enemy hits |
+| Peritya | Fast sustained machine gun; 60-round magazine, 3.2-second reload |
+| Vepley | Faster, lighter five-pellet shotgun; stronger knockback |
+
+Automatic firing follows cursor aim when any live enemy is in weapon range. It never aims at enemies for you. Move the mouse onto the canvas to aim; leaving the canvas or entering an overlay clears aim input. Empty magazines reload automatically. HP, ammo/reload status and defeats appear in the HUD. Pursuers deal contact damage; the cover block stops movement and bullets, including sniper shots. Every retry/switch resets the whole world: health, ammo, weapon/hurt/spawn timers, projectiles, enemies, counters, aim and held input.
+
+Detailed provisional weapon values are in [GAME_DESIGN.md](docs/GAME_DESIGN.md) and typed definitions in `src/game/data/`. There is no manual reload, click-to-fire or aim assistance. The preserved M1 no-combat playground is available via its selection-screen link or `http://127.0.0.1:5173/?mode=playground`.
+
 - WASD moves on the XZ floor at 6 units/second with equal diagonal speed. Opposing keys cancel.
 - A fixed elevated orthographic camera follows 45% of player translation without rotating. The 24 × 24 arena bounds the entire 0.4-unit-radius player collider.
 - The upright placeholder uses a bottom-center foot origin. The foot ring marks its ground position.
@@ -41,7 +56,7 @@ The browser suite uses installed Google Chrome in headless mode and starts a loc
 - Escape or Pause opens the pause interface. Escape or Resume deliberately resumes. Focus loss/hidden tabs pause, clear input and require a deliberate resume with fresh movement keys.
 - WebGL startup errors show a fallback message; context loss pauses and offers recovery/reload guidance.
 
-No enemies, damage, XP, dash, weapon systems, full roster, audio, storage, or polished art are implemented. All visible assets are project-created procedural geometry/flat planes; Blender was not needed or used. No official sprites are included.
+M2 includes one pursuer type (up to eight alive) and bounded basic projectile combat. No XP, dash, ranged enemies, three-skill kits, ultimates, weapon evolution, audio, storage or polished art is implemented. All visible assets are project-created procedural geometry/flat planes or labeled CSS silhouettes; Blender was not needed or used. No official sprites are included.
 
 ## Actual structure
 
@@ -49,21 +64,22 @@ No enemies, damage, XP, dash, weapon systems, full roster, audio, storage, or po
 src/
   app/              React shell, entry point, layout styles
   game/
-    core/           World state, run status, fixed 60 Hz simulation
-    systems/        Movement and renderer-independent targeting math
-  render/           Arena, foot-anchored planes, aim visuals, camera projection
+    core/           World state/reset, run status, fixed 60 Hz simulation
+    data/           Typed character, weapon, pursuer and cover definitions
+    systems/        Movement, targeting, weapons, swept collision, enemies/projectiles
+  render/           Arena, foot-anchored planes, camera/aim, batched combat visuals
   platform/         Browser input, focus/visibility and graphics lifecycle
-  ui/               Pause dialog and render-error boundary
+  ui/               Selection, HUD, pause, game over and render-error boundary
 tests/
   core/             Simulation timing and pause lifecycle
-  systems/          Movement, bounds, targeting/projection geometry
-  browser/          Production Chrome movement/aim/pause checks
+  systems/          Movement, targeting, weapon timing/collision/combat lifecycle
+  browser/          Production Chrome checks for all six dolls and preserved M1
 docs/               Design baseline, decisions, provenance and evidence
 ```
 
-Simulation contains no React, browser or Three.js imports. React subscribes only to lifecycle changes. The render loop advances the simulation, translates the camera, projects the cursor, then synchronizes visual transforms. Catch-up is bounded to six simulation steps per frame; long stalls intentionally discard excess time. Rendering currently uses the latest fixed-step position without interpolation.
+Simulation contains no React, browser or Three.js imports. React subscribes to lifecycle and changed HUD values, never per-projectile state. Each fixed step moves the player, samples current camera/cursor projection, then runs combat. Rendering refreshes projection even on frames with no fixed step and synchronizes visual transforms after simulation. Shared systems handle all six weapons; fixed-capacity render batches handle enemies and projectiles. Catch-up is bounded to six simulation steps per frame; long stalls intentionally discard excess time. Rendering currently uses the latest fixed-step position without interpolation.
 
-`src/game/data/`, `public/assets/`, and `assets-source/` will be created when typed content or actual asset files require them. No empty future-system folders are scaffolded. Source geometry lives in `src/render/`. Keep optimized runtime assets separate from editable art sources when introduced. `.gitignore` excludes dependencies, builds, test captures, temporary files, secrets, and Blender backup files while allowing useful `.blend` source files.
+`public/assets/` and `assets-source/` will be created when actual asset files require them. No empty future-system folders are scaffolded. Source geometry lives in `src/render/`. Keep optimized runtime assets separate from editable art sources when introduced. `.gitignore` excludes dependencies, builds, test captures, temporary files, secrets, and Blender backup files while allowing useful `.blend` source files.
 
 ## Pinned toolchain
 
@@ -83,6 +99,10 @@ Compatibility was checked against official [R3F documentation](https://github.co
 
 ## Verification and known limitations
 
+Expanded M2 verification (2026-09-06): build/typecheck/lint passed; **38 unit tests** and **10 production Chrome browser tests** passed. Six browser cases each selected a doll, fired, damaged/defeated an enemy, paused, handled synthetic focus loss, died through real pursuer contact, and retried with clean state. Another checked returning to selection and switching dolls; three retain M1 movement/aim/resize/pause assertions. Unit coverage includes per-doll reloads, bursts, current-step aim, piercing limits and wall stops, per-enemy hit bookkeeping, bounded knockback, enemy cover navigation, entity caps and complete resets. Selection and combat screenshots were inspected. See [M2 evidence](docs/MILESTONES.md). No dependencies or lockfile were changed; Git was clean on `main` before M2 work. No commit, push or deployment performed.
+
+M2 limitations: provisional balance, static placeholder doll silhouettes, one enemy type, no enemy-to-enemy separation, no audio or later systems. Sustained knockback can pin a pursuer, and the sniper can kill a basic pursuer in one shot; director feedback should guide tuning. Software-WebGL correctness checks do not establish GPU performance. Real Alt-Tab/visibility changes, browser zoom/DPR, other browsers, graphics-context recovery and human movement/weapon feel still need manual review. The current rendering bundle is ~1.10 MB minified / ~302 KB gzip and still triggers Vite's size warning. Acceptance remains pending.
+
 Relocation verified on 2026-09-06 from **`C:\Users\MY PC\Desktop\GFL Game`**: `npm run build`, `npm run typecheck`, `npm run lint`, `npm run test` (13 passed), and the existing `npm run test:browser` suite (3 passed) all completed successfully. Existing dependencies worked after the move; no package or lockfile changes/reinstall were needed. Production output was regenerated. Checksums confirm the application, tests and configuration were preserved unchanged. The old folder was removed only after transfer verification and an empty-directory check. Previous browser captures and the transfer manifest are preserved in ignored `.tmp/relocation-before/`. Director acceptance remains pending; the original M0/M1 evidence and manual limitations below still apply.
 
 On 2026-09-06, build (including typecheck), standalone typecheck, lint, 13 unit tests, and 3 production Chrome browser tests passed. M0's minimal scene was also built, checked, and visually inspected before M1 implementation. The final scene screenshots were inspected at 1280 × 800 and 960 × 700; browser assertions measured cursor projection error below 0.1 CSS pixel. See [milestone evidence](docs/MILESTONES.md).
@@ -90,6 +110,8 @@ On 2026-09-06, build (including typecheck), standalone typecheck, lint, 13 unit 
 Vite reports a bundle-size warning: the main JavaScript bundle is approximately 1.08 MB minified / 298 KB gzip, primarily the rendering stack. It is not a build failure. Browser coverage is headless Chrome with software WebGL; no 60 FPS or reference-GPU claim is made. Real OS Alt-Tab, browser zoom/DPR changes, other browsers, context recovery on a real graphics reset, and subjective movement feel remain manual checks. Native browser-control connection was unavailable; automated Chrome tests were available. No Git repository existed; no commit, push or deployment was performed.
 
 ## Director playtest
+
+Compare Sabrina's broad/heavier shotgun with Vepley's fast/lighter knockback volleys; Qiongjiu's three-round bursts with Tololo's steady rifle; Mosin-Nagant's slow piercing line shots with Peritya's large magazine and long reload. For each doll: get a kill, aim away or leave the canvas to take damage, die, retry, then return to selection and switch. Check fresh HP/ammo/counters and no leftover projectiles. Pause/Alt-Tab during a burst and reload, then deliberately resume. Try shooting across the cover block and away from in-range enemies. The full unchecked director checklist is in [PLAYTEST_CHECKLIST.md](docs/PLAYTEST_CHECKLIST.md).
 
 - Move with each key, then diagonally; check responsiveness and equal speed.
 - Walk every edge/corner; feet must stay inside the gold boundary and slide along edges.
@@ -112,5 +134,4 @@ Report what you tried, expected, and observed. Director feedback is recorded sep
 - [Playtest and verification](docs/PLAYTEST_CHECKLIST.md)
 - [Decisions and sources](docs/DECISIONS.md)
 
-The eventual first prototype is Sabrina in a checkpoint courtyard with shotgun combat, two enemy behaviors, dash, XP, limited upgrades and one evolution over three to five minutes. Six dolls remain a later roster target. After M1 review and explicit authorization, M2 introduces one pursuing enemy, Sabrina's shotgun, damage/death and reliable restart.
-
+The approved M2 scope now includes all six basic weapons and selection. Full doll skill kits, dash, ranged pressure, XP, upgrades, evolutions and a paced three-to-five-minute encounter remain later milestones. Review expanded M2 before authorizing further development.

@@ -15,6 +15,20 @@ Only check items actually performed. Record build/commit, device, browser and re
 
 ## M2/M3 combat
 
+Expanded M2 director comparison (acceptance pending; automated evidence is logged separately):
+
+- [ ] Select each of six dolls; verify name, weapon summary, placeholder label and selected state.
+- [ ] Sabrina: compare broad seven-pellet spread and close-range damage with Vepley.
+- [ ] Qiongjiu: watch for three discrete rounds, then a recovery gap; move the cursor within a burst.
+- [ ] Tololo: compare sustained rifle cadence against Qiongjiu's controlled bursts.
+- [ ] Mosin-Nagant: line up pursuers; check powerful slow shots pierce enemies but stop at the cover block.
+- [ ] Peritya: sustain fire away from an in-range enemy; empty the 60-round magazine and observe the longer reload.
+- [ ] Vepley: compare faster/lighter volleys and stronger pushback against Sabrina; try pushing toward cover.
+- [ ] For every doll, defeat an enemy, stop aiming to take contact damage, die, retry, and check fresh HP/ammo/counters with no old projectiles.
+- [ ] Return to selection after death, switch dolls, and check the new weapon starts cleanly.
+- [ ] Pause/Alt-Tab during a burst and reload; timers must freeze, input must clear, and resume must require a deliberate action.
+- [ ] Aim away from a nearby enemy: shots follow the cursor; move all enemies out of range: firing stops.
+
 - [ ] Shotgun follows cursor direction even when enemies are elsewhere.
 - [ ] Range-gated firing follows the documented rule.
 - [ ] Fast projectiles hit thin obstacles and enemies reliably.
