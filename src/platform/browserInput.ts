@@ -18,6 +18,11 @@ export function bindBrowserInput(simulation: Simulation, canvas: HTMLCanvasEleme
     if (event.ctrlKey || event.altKey || event.metaKey) return
     const target = event.target
     if (target instanceof HTMLElement && target.closest('button, input, textarea, select, [contenteditable]')) return
+    if (event.code === 'Space') {
+      event.preventDefault()
+      if (!event.repeat) simulation.requestDash()
+      return
+    }
     if (movementKeys.has(event.code)) {
       event.preventDefault()
       if (simulation.getStatus() === 'playing' && !event.repeat) simulation.held.add(event.code)

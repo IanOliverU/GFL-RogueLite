@@ -9,6 +9,7 @@ import { CharacterPlaceholder } from './CharacterPlaceholder'
 import { AimIndicator } from './AimIndicator'
 import { projectCursor, updateCamera } from './cameraProjection'
 import { CombatVisuals } from './CombatVisuals'
+import { DashTrail } from './DashTrail'
 import { CHARACTERS } from '../game/data/characters'
 
 const screenPoint = new Vector3()
@@ -66,5 +67,6 @@ export function PlaygroundScene({ simulation }: { simulation: Simulation }) {
     <group ref={character}><CharacterPlaceholder color={CHARACTERS[simulation.world.dollId].color} /></group>
     <AimIndicator directionRef={direction} targetRef={target} />
     <CombatVisuals simulation={simulation} />
+    <DashTrail simulation={simulation} />
   </>
 }

@@ -1,6 +1,6 @@
-﻿# GFL2 Exilium Fan Game — expanded M2 combat prototype
+﻿# GFL2 Exilium Fan Game — M3 dash and pressure prototype
 
-Independent Girls' Frontline-inspired browser fan-game prototype. Ian is director/producer and playtester. M0/M1 are preserved, and the approved expanded M2 adds six selectable dolls with distinct basic weapons and shared combat. These are prototype fan-game adaptations, not verified official kits. M2 acceptance is pending Ian's review; stop here before M3.
+Independent Girls' Frontline-inspired browser fan-game prototype. Ian is director/producer and playtester. M0/M1 are preserved, the expanded M2 added six selectable dolls with distinct basic weapons and shared combat (accepted, committed as `e8bb217`), and M3 adds dash evasion plus ranged-enemy pressure. These are prototype fan-game adaptations, not verified official kits. M3 acceptance is pending Ian's review; stop here before M4.
 
 ## Run locally
 
@@ -44,7 +44,11 @@ The default screen lets you choose Sabrina, Qiongjiu, Tololo, Mosin-Nagant, Peri
 | Peritya | Fast sustained machine gun; 60-round magazine, 3.2-second reload |
 | Vepley | Faster, lighter five-pellet shotgun; stronger knockback |
 
-Automatic firing follows cursor aim when any live enemy is in weapon range. It never aims at enemies for you. Move the mouse onto the canvas to aim; leaving the canvas or entering an overlay clears aim input. Empty magazines reload automatically. HP, ammo/reload status and defeats appear in the HUD. Pursuers deal contact damage; the cover block stops movement and bullets, including sniper shots. Every retry/switch resets the whole world: health, ammo, weapon/hurt/spawn timers, projectiles, enemies, counters, aim and held input.
+ Automatic firing follows cursor aim when any live enemy is in weapon range. It never aims at enemies for you. Move the mouse onto the canvas to aim; leaving the canvas or entering an overlay clears aim input. Empty magazines reload automatically. HP, ammo/reload status, dash status and defeats appear in the HUD. Pursuers deal contact damage; the cover block stops movement and bullets, including sniper shots. Every retry/switch resets the whole world: health, ammo, weapon/hurt/spawn timers, dash, projectiles (friendly and hostile), enemies, counters, aim and held input.
+
+M3 adds: **Space** dashes 4 units over 0.20 s toward held movement (or cursor aim when stationary), with invulnerability only during the dash and a 1.20 s cooldown from activation; dash stops at cover/perimeter. One ranged enemy type (50 HP, purple placeholder) holds near 7 units, warns 0.90 s with a red beam toward the position locked at warning onset, then fires a slow (7 u/s) orange projectile. Spawns escalate over time (first pressure spawn at 4 s, up to 8 alive, at most 2 ranged, no spawn within 6 units of the player); enemies keep bounded soft separation.
+
+The pause menu offers **Resume run**, **Restart run** (fresh run with the same doll) and **Change character** (back to selection), with a note that restarting or changing discards the current run. The combat HUD shows a readable **TIME** display (MM:SS) driven by the same run clock as spawn pressure; it freezes on pause/focus loss/game over and resets to 00:00 on every new or restarted run.
 
 Detailed provisional weapon values are in [GAME_DESIGN.md](docs/GAME_DESIGN.md) and typed definitions in `src/game/data/`. There is no manual reload, click-to-fire or aim assistance. The preserved M1 no-combat playground is available via its selection-screen link or `http://127.0.0.1:5173/?mode=playground`.
 
@@ -55,8 +59,9 @@ Detailed provisional weapon values are in [GAME_DESIGN.md](docs/GAME_DESIGN.md) 
 - Aim can extend outside the bounded arena onto the same floor plane. A missing or near-zero target preserves the last valid direction. Leaving the canvas hides the cursor target.
 - Escape or Pause opens the pause interface. Escape or Resume deliberately resumes. Focus loss/hidden tabs pause, clear input and require a deliberate resume with fresh movement keys.
 - WebGL startup errors show a fallback message; context loss pauses and offers recovery/reload guidance.
+- Space dashes (movement direction, else aim); HUD shows READY, countdown or DASHING. Dash trail/ring placeholders are visible only during the 0.20 s invulnerability interval. Pause/focus freezes dash, warning, projectile, weapon and spawn timers, clears held keys/aim/queued dash, and resume needs a deliberate action with no catch-up jump.
 
-M2 includes one pursuer type (up to eight alive) and bounded basic projectile combat. No XP, dash, ranged enemies, three-skill kits, ultimates, weapon evolution, audio, storage or polished art is implemented. All visible assets are project-created procedural geometry/flat planes or labeled CSS silhouettes; Blender was not needed or used. No official sprites are included.
+M3 includes one pursuer type plus one ranged type with telegraph/projectiles and phased spawn pressure. No XP, three-skill kits, ultimates, weapon evolution, audio, storage or polished art is implemented. All visible assets are project-created procedural geometry/flat planes or labeled CSS silhouettes; Blender was not needed or used. No official sprites are included.
 
 ## Actual structure
 
@@ -99,7 +104,9 @@ Compatibility was checked against official [R3F documentation](https://github.co
 
 ## Verification and known limitations
 
-Expanded M2 verification (2026-09-06): build/typecheck/lint passed; **38 unit tests** and **10 production Chrome browser tests** passed. Six browser cases each selected a doll, fired, damaged/defeated an enemy, paused, handled synthetic focus loss, died through real pursuer contact, and retried with clean state. Another checked returning to selection and switching dolls; three retain M1 movement/aim/resize/pause assertions. Unit coverage includes per-doll reloads, bursts, current-step aim, piercing limits and wall stops, per-enemy hit bookkeeping, bounded knockback, enemy cover navigation, entity caps and complete resets. Selection and combat screenshots were inspected. See [M2 evidence](docs/MILESTONES.md). No dependencies or lockfile were changed; Git was clean on `main` before M2 work. No commit, push or deployment performed.
+M3 verification: core mechanics were manually playtested by Ian (dash, collision, ranged attacks, enemy pressure, pause/real Alt-Tab, reset, all six dolls) and **accepted**; remaining limitations from the automated checks still apply. Automated checks (finishing agent; M2 `e8bb217` preserved): build (incl. typecheck), standalone typecheck, lint and `git diff --check` passed; **71 unit tests passed in 6 files** (13 M1 + 25 M2 combat + 28 M3 + 5 follow-up); **13 production Chrome browser tests passed** (6 doll lifecycles, 1 selection/switch, 2 M3 dash/ranged, 1 follow-up pause-menu/timer, 3 M1 regressions). Dash cooldown timing was re-checked at the step level (1.20 s from activation). Screenshots `test-results/m3-dash.png`, `m3-warning.png`, `m3-projectile.png` and `m3-pause-menu.png` (three pause options, discard note, TIME 00:02) were visually inspected. See [M3 evidence](docs/MILESTONES.md). No commit, push or deployment performed.
+
+M3 limitations: provisional tuning throughout; static placeholder doll silhouettes; at most 2 ranged enemies; software-WebGL correctness checks do not establish GPU performance. Real browser zoom/DPR, other browsers, graphics-context recovery and human dash/weapon feel still need manual review (real Alt-Tab covered by Ian's playtest). The rendering bundle is ~1.11 MB minified / ~304 KB gzip and still triggers Vite's size warning. Core M3 accepted by Ian; the pause-menu/timer follow-up is pending his review.
 
 M2 limitations: provisional balance, static placeholder doll silhouettes, one enemy type, no enemy-to-enemy separation, no audio or later systems. Sustained knockback can pin a pursuer, and the sniper can kill a basic pursuer in one shot; director feedback should guide tuning. Software-WebGL correctness checks do not establish GPU performance. Real Alt-Tab/visibility changes, browser zoom/DPR, other browsers, graphics-context recovery and human movement/weapon feel still need manual review. The current rendering bundle is ~1.10 MB minified / ~302 KB gzip and still triggers Vite's size warning. Acceptance remains pending.
 
@@ -111,7 +118,23 @@ Vite reports a bundle-size warning: the main JavaScript bundle is approximately 
 
 ## Director playtest
 
-Compare Sabrina's broad/heavier shotgun with Vepley's fast/lighter knockback volleys; Qiongjiu's three-round bursts with Tololo's steady rifle; Mosin-Nagant's slow piercing line shots with Peritya's large magazine and long reload. For each doll: get a kill, aim away or leave the canvas to take damage, die, retry, then return to selection and switch. Check fresh HP/ammo/counters and no leftover projectiles. Pause/Alt-Tab during a burst and reload, then deliberately resume. Try shooting across the cover block and away from in-range enemies. The full unchecked director checklist is in [PLAYTEST_CHECKLIST.md](docs/PLAYTEST_CHECKLIST.md).
+M3 core is accepted by Ian. Pending follow-up checklist (pause options + timer):
+- Pause mid-run: confirm Resume run, Restart run and Change character plus the discard note.
+- Resume: run continues with elapsed time, HP and enemies preserved.
+- Restart run: same doll, TIME back to 00:00, fresh HP/ammo/dash/counters, no leftover enemies or orange shots.
+- Change character: selection screen returns; pick another doll and start clean.
+- TIME advances during play (MM:SS), freezes while paused and after game over.
+
+M3 checklist (all six dolls preserved; try at least Sabrina plus one rifle and one shotgun):
+- Dash west/east with a held key; dash stationary and check it follows cursor aim.
+- Dash through an incoming orange shot or a pursuer touch: no damage during the 0.20 s dash; damage returns immediately after.
+- Spam Space: the second dash must not fire until the 1.20 s HUD countdown ends.
+- Dash into the east cover block and the arena edge: the dash must stop, never cross.
+- Wait for a purple ranged enemy: confirm the 0.90 s red beam, sidestep after it appears (the shot must land where you were, not follow you), and confirm the slow orange projectile.
+- Pause mid-dash and mid-warning: timers freeze, keys clear, resume needs a button/Escape with fresh keys.
+- Die, retry with the same doll, then return to selection and switch: fresh HP/ammo/dash/counters, no leftover warnings or orange shots.
+
+M2 comparison retained: Compare Sabrina's broad/heavier shotgun with Vepley's fast/lighter knockback volleys; Qiongjiu's three-round bursts with Tololo's steady rifle; Mosin-Nagant's slow piercing line shots with Peritya's large magazine and long reload. For each doll: get a kill, aim away or leave the canvas to take damage, die, retry, then return to selection and switch. Check fresh HP/ammo/counters and no leftover projectiles. Pause/Alt-Tab during a burst and reload, then deliberately resume. Try shooting across the cover block and away from in-range enemies. The full unchecked director checklist is in [PLAYTEST_CHECKLIST.md](docs/PLAYTEST_CHECKLIST.md).
 
 - Move with each key, then diagonally; check responsiveness and equal speed.
 - Walk every edge/corner; feet must stay inside the gold boundary and slide along edges.
@@ -134,4 +157,4 @@ Report what you tried, expected, and observed. Director feedback is recorded sep
 - [Playtest and verification](docs/PLAYTEST_CHECKLIST.md)
 - [Decisions and sources](docs/DECISIONS.md)
 
-The approved M2 scope now includes all six basic weapons and selection. Full doll skill kits, dash, ranged pressure, XP, upgrades, evolutions and a paced three-to-five-minute encounter remain later milestones. Review expanded M2 before authorizing further development.
+The approved M2 scope now includes all six basic weapons and selection. M3 adds dash evasion and ranged pressure only. Full doll skill kits, XP, upgrades, evolutions and a paced three-to-five-minute encounter remain later milestones. Review M3 before authorizing further development.

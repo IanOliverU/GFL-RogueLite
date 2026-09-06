@@ -39,6 +39,27 @@ Expanded M2 director comparison (acceptance pending; automated evidence is logge
 - [ ] Ranged attacks have a visible and avoidable warning.
 - [ ] Repeated restart does not multiply enemies, damage or listeners.
 
+## M3 evasion and pressure (manual, pending Ian)
+
+Provisional tuning under test: dash 4 units / 0.20 s, invulnerable only while dashing, 1.20 s cooldown from activation; ranged warning 0.90 s, recovery 2.8 s, shot speed 7 u/s; first pressure spawn 4 s, at most 2 ranged alive, no spawn within 6 units.
+
+- [ ] Space dashes toward held movement; with no keys it dashes toward cursor aim.
+- [ ] A pursuer touch or orange shot during the dash deals no damage; the same attack after the dash does.
+- [ ] A second Space during the 1.20 s HUD countdown does nothing; READY returns on time.
+- [ ] Dashing into the east cover block and into the arena edge stops without crossing.
+- [ ] The purple ranged enemy shows a red beam for ~0.9 s before firing; moving after the beam appears avoids the locked shot.
+- [ ] Orange hostile shots are visible in flight and stop at cover/walls.
+- [ ] Pausing mid-dash or mid-warning freezes both; resume needs a deliberate action with fresh keys and no jump.
+- [ ] Retry and doll-switch clear dash state, warnings, orange shots and all M3 counters.
+
+## M3 follow-up: pause options and run timer (pending Ian)
+
+- [ ] Pause shows Resume run, Restart run and Change character with a discard-current-run note.
+- [ ] Resume continues the run with elapsed time, HP and enemies preserved.
+- [ ] Restart keeps the doll, resets TIME to 00:00 and clears all run state.
+- [ ] Change character returns to selection; another doll starts clean.
+- [ ] TIME (MM:SS) advances during play and freezes on pause, focus loss and game over.
+
 ## M4 progression
 
 - [ ] XP grants one intended amount; pickups are not collected twice.

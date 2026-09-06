@@ -1,5 +1,5 @@
 import type { World } from '../core/world'
-import { PURSUER } from '../data/arena'
+import { ENEMY_DEFINITIONS } from '../data/arena'
 import { boundaryHit, segmentBox, segmentCircle } from './collision'
 
 export function stepProjectiles(world: World, dt: number) {
@@ -10,7 +10,7 @@ export function stepProjectiles(world: World, dt: number) {
     for (const obstacle of world.obstacles) wall = Math.min(wall, segmentBox(projectile, end, obstacle, 0.045) ?? Infinity)
     const hits = world.enemies.flatMap((enemy) => {
       if (enemy.health <= 0 || projectile.hitIds.includes(enemy.id)) return []
-      const t = segmentCircle(projectile, end, enemy, PURSUER.radius + 0.045)
+      const t = segmentCircle(projectile, end, enemy, ENEMY_DEFINITIONS[enemy.kind].radius + 0.045)
       return t !== null && t < wall ? [{ enemy, t }] : []
     }).sort((a, b) => a.t - b.t || a.enemy.id - b.enemy.id)
     for (const { enemy } of hits) {

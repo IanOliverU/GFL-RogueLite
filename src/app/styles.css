@@ -59,6 +59,7 @@ kbd { font: 11px 'Segoe UI', sans-serif; padding: 3px 6px; border: 1px solid #58
 .combat-hud b { display: block; font-size: 15px; margin-top: 3px; font-weight: 500; }
 .combat-hud small { display: block; color: #acb8a6; font-size: 9px; margin-top: 5px; }
 .health-low { color: #ff9682; }
+.combat-hud .dash-ready b { color: #9fd8ae; }
 .pause-card .secondary-button { margin-top: 0; background: #304441; color: #d4e0d4; border: 1px solid #68816f; }
 @media (max-width: 800px) {
   .doll-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

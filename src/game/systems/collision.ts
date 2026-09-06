@@ -60,3 +60,22 @@ export function moveCircle(position: GroundPoint, dx: number, dz: number, radius
   position.x = x
   position.z = z
 }
+
+/** Dash follows a straight swept path, stopping at first cover/perimeter contact. */
+export function moveCircleSwept(position: GroundPoint, dx: number, dz: number, radius: number, obstacles: readonly Obstacle[]) {
+  const end = { x: position.x + dx, z: position.z + dz }
+  let fraction = 1
+  const limit = ARENA_HALF_SIZE - radius
+  for (const axis of ['x', 'z'] as const) {
+    if (Math.abs(end[axis]) > limit) fraction = Math.min(fraction, (Math.sign(end[axis]) * limit - position[axis]) / (end[axis] - position[axis]))
+  }
+  for (const box of obstacles) {
+    // Touching a face permits moving away or along it, but never into it.
+    if ((position.x <= box.minX - radius && dx <= 0) || (position.x >= box.maxX + radius && dx >= 0) ||
+        (position.z <= box.minZ - radius && dz <= 0) || (position.z >= box.maxZ + radius && dz >= 0)) continue
+    fraction = Math.min(fraction, segmentBox(position, end, box, radius) ?? 1)
+  }
+  const safe = Math.max(0, fraction - (fraction < 1 ? 1e-8 : 0))
+  position.x += dx * safe
+  position.z += dz * safe
+}

@@ -18,7 +18,7 @@ export function App() {
     <header className="topbar">
       <div className="brand-mark" aria-hidden="true">G<span>02</span></div>
       <div><p className="eyebrow">EXILIUM / FAN GAME</p><h1>{inSelection || simulation.world.combat ? 'Combat prototype' : 'Movement playground'}</h1></div>
-      <div className="build-tag">M2 <span>SIX T-DOLLS</span></div>
+      <div className="build-tag">M3 <span>DASH & PRESSURE</span></div>
       {!inSelection && <button className="pause-button" disabled={status !== 'playing'} onClick={() => simulation.pause()}>Pause <kbd>Esc</kbd></button>}
     </header>
     {inSelection ? <CharacterSelection selected={selected} onSelect={setSelected} onStart={() => simulation.startRun(selected)} /> : <>
@@ -30,12 +30,13 @@ export function App() {
         </RenderErrorBoundary>
         <div className="scene-label"><span className="status-dot" /> {status.replace('_', ' ').toUpperCase()}<small>CHECKPOINT / TEST COURTYARD</small></div>
         {simulation.world.combat && <CombatHud simulation={simulation} />}
-        <div className="scene-note"><span>01</span> {simulation.world.combat ? 'Aim freely. Keep moving.' : 'Movement & targeting'}<small>Original placeholders · flat ground · camera follow</small></div>
+        <div className="scene-note"><span>01</span> {simulation.world.combat ? 'Dash through danger. Dodge the red warnings.' : 'Movement & targeting'}<small>Original placeholders · flat ground · camera follow</small></div>
         {status === 'paused' && <PauseDialog simulation={simulation} />}
         {status === 'game_over' && <GameOverDialog simulation={simulation} />}
       </section>
       <footer className="control-bar">
         <div><span className="key-group"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span> Move</div>
+        {simulation.world.combat && <div><kbd>Space</kbd> Dash</div>}
         <div><span className="cursor-icon">↗</span> Mouse to aim</div>
         <p>{simulation.world.combat ? 'Auto-fire in enemy range · Automatic reload · No aim assistance' : 'Walk the perimeter. Keep your cursor still while moving.'}</p>
         <span className="prototype-tag">PROTOTYPE FAN ADAPTATIONS</span>
