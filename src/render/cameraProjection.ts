@@ -1,17 +1,24 @@
 import { OrthographicCamera, Raycaster, Vector2 } from 'three'
 import type { GroundPoint } from '../game/core/world'
+import type { CameraPreset } from '../game/data/camera'
 import { intersectGround, pointerToNdc, type CanvasBounds } from '../game/systems/targeting'
 
 const raycaster = new Raycaster()
 const ndc = new Vector2()
 
-export function updateCamera(camera: OrthographicCamera, player: GroundPoint, width: number, height: number) {
-  // Fixed yaw and tilt; partial translation keeps movement legible on screen.
-  const x = player.x * 0.45
-  const z = player.z * 0.45
-  camera.position.set(x, 22, z + 18)
+export function updateCamera(camera: OrthographicCamera, player: GroundPoint, width: number, height: number, preset: CameraPreset) {
+  // Fixed yaw and tilt per preset; partial translation keeps movement legible.
+  const x = player.x * preset.follow
+  const z = player.z * preset.follow
+  const vertical = Math.sin(preset.elevation) * preset.distance
+  const horizontal = Math.cos(preset.elevation) * preset.distance
+  camera.position.set(
+    x + Math.sin(preset.yaw) * horizontal,
+    vertical,
+    z + Math.cos(preset.yaw) * horizontal,
+  )
   camera.lookAt(x, 0, z)
-  const halfHeight = 14
+  const halfHeight = preset.halfHeight
   const halfWidth = halfHeight * width / Math.max(1, height)
   camera.left = -halfWidth
   camera.right = halfWidth

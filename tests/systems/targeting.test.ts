@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { OrthographicCamera, Vector3 } from 'three'
 import { createWorld } from '../../src/game/core/world'
+import { CAMERA_PRESETS } from '../../src/game/data/camera'
 import { intersectGround, pointerToNdc, updateAim } from '../../src/game/systems/targeting'
 import { projectCursor, updateCamera } from '../../src/render/cameraProjection'
 
@@ -23,15 +24,17 @@ describe('floor targeting', () => {
   })
   it('round-trips floor targets in every quadrant after camera translation and resize', () => {
     const camera = new OrthographicCamera(-1, 1, 1, -1, 0.1, 250)
-    for (const size of [{ width: 1280, height: 639 }, { width: 710, height: 760 }]) {
-      const rect = { left: 37, top: 94, ...size }
-      for (const player of [{ x: 0, z: 0 }, { x: 7, z: -8 }]) {
-        updateCamera(camera, player, rect.width, rect.height)
-        for (const x of [-5, 5]) for (const z of [-5, 5]) {
-          const screen = new Vector3(x, 0, z).project(camera)
-          const target = projectCursor(camera, { x: rect.left + (screen.x + 1) * rect.width / 2, y: rect.top + (1 - screen.y) * rect.height / 2 }, rect)
-          expect(target?.x).toBeCloseTo(x, 8)
-          expect(target?.z).toBeCloseTo(z, 8)
+    for (const preset of [CAMERA_PRESETS.classic, CAMERA_PRESETS.angled]) {
+      for (const size of [{ width: 1280, height: 639 }, { width: 710, height: 760 }]) {
+        const rect = { left: 37, top: 94, ...size }
+        for (const player of [{ x: 0, z: 0 }, { x: 7, z: -8 }]) {
+          updateCamera(camera, player, rect.width, rect.height, preset)
+          for (const x of [-5, 5]) for (const z of [-5, 5]) {
+            const screen = new Vector3(x, 0, z).project(camera)
+            const target = projectCursor(camera, { x: rect.left + (screen.x + 1) * rect.width / 2, y: rect.top + (1 - screen.y) * rect.height / 2 }, rect)
+            expect(target?.x).toBeCloseTo(x, 8)
+            expect(target?.z).toBeCloseTo(z, 8)
+          }
         }
       }
     }
@@ -40,9 +43,9 @@ describe('floor targeting', () => {
     const camera = new OrthographicCamera()
     const rect = { left: 0, top: 94, width: 1280, height: 639 }
     const pointer = { x: 700, y: 350 }
-    updateCamera(camera, { x: 0, z: 0 }, rect.width, rect.height)
+    updateCamera(camera, { x: 0, z: 0 }, rect.width, rect.height, CAMERA_PRESETS.classic)
     const before = projectCursor(camera, pointer, rect)!
-    updateCamera(camera, { x: 6, z: 0 }, rect.width, rect.height)
+    updateCamera(camera, { x: 6, z: 0 }, rect.width, rect.height, CAMERA_PRESETS.classic)
     const after = projectCursor(camera, pointer, rect)!
     expect(after.x - before.x).toBeCloseTo(2.7)
     expect(after.z).toBeCloseTo(before.z)

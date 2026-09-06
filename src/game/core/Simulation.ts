@@ -133,18 +133,19 @@ export class Simulation {
     this.listeners.forEach((listener) => listener())
   }
 
-  advance(delta: number, sampleAim?: (player: GroundPoint) => GroundPoint | null): void {
+  advance(delta: number, sampleAim?: (player: GroundPoint) => GroundPoint | null, cameraYaw = 0): void {
     if (this.status !== 'playing') { this.accumulator = 0; return }
     if (!Number.isFinite(delta) || delta < 0) return
+    const yaw = cameraYaw
     if (this.clampResumeDelta) { delta = Math.min(delta, FIXED_STEP); this.clampResumeDelta = false }
     this.accumulator += Math.min(delta, FIXED_STEP * MAX_STEPS)
     let steps = 0
     while (this.accumulator + 1e-10 >= FIXED_STEP && steps < MAX_STEPS) {
       const playerStart = { ...this.world.player }
       if (this.dashRequested && sampleAim && this.pointer) updateAim(this.world, sampleAim(this.world.player))
-      const dashing = this.world.combat && stepDash(this.world, this.held, this.dashRequested, FIXED_STEP)
+      const dashing = this.world.combat && stepDash(this.world, this.held, this.dashRequested, FIXED_STEP, yaw)
       this.dashRequested = false
-      if (!dashing) movePlayer(this.world.player, this.held, FIXED_STEP, this.world.obstacles)
+      if (!dashing) movePlayer(this.world.player, this.held, FIXED_STEP, this.world.obstacles, yaw)
       // Renderer supplies projection only; simulation owns direction and firing order.
       if (sampleAim && this.pointer) updateAim(this.world, sampleAim(this.world.player))
       if (this.world.combat) {

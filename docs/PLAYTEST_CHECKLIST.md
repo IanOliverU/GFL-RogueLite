@@ -132,6 +132,17 @@ Proven for Sabrina only; other five dolls still use planes. Automated evidence (
 - [ ] Hit feedback never obscures enemies, gems, or warnings.
 - [ ] Missing-asset fallback (planes) acceptable for clean checkouts.
 
+## M5 camera experiment (pending Ian's verdict; defaults to Angled)
+
+Director feedback: Sabrina's import is satisfactory but doesn't fit the environment yet; movement feels clunky without walking animation. Evaluate the Angled preset against Classic before further art changes. Switch any time in the pause menu (Camera group); the run is preserved. To restore Classic project-wide, set `DEFAULT_CAMERA_PRESET` to `'classic'` in `src/game/data/camera.ts`.
+
+- [ ] Angled framing: Sabrina's silhouette/clothing readable, with room to see enemies and warnings.
+- [ ] W moves toward screen-up and D toward screen-right in both presets; diagonals feel equal.
+- [ ] Aim stays glued to the cursor while moving and after resize; dash goes where-input-points.
+- [ ] Pause-menu switching keeps TIME/HP/enemies; no stray movement or shots after switching.
+- [ ] Map edges/corners show no clipping or missing terrain in Angled.
+- [ ] Verdict: keep Angled, keep Classic, or request tuning (yaw/elevation/closeness values).
+
 - [ ] At game scale, bullets and warnings stand out from lighting/effects.
 - [ ] Sprite edges, feet, facings and muzzle placement look coherent.
 - [ ] Audio starts after a user gesture and responds to volume settings.

@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useSyncExternalStore } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Group, Mesh, OrthographicCamera, Vector3 } from 'three'
 import type { Simulation } from '../game/core/Simulation'
+import { getCameraPreset, subscribeCameraPreset } from '../game/data/camera'
 import { updateAim } from '../game/systems/targeting'
 import { bindBrowserInput } from '../platform/browserInput'
 import { Arena } from './Arena'
@@ -21,16 +22,17 @@ export function PlaygroundScene({ simulation }: { simulation: Simulation }) {
   const target = useRef<Mesh>(null)
   const inspect = new URLSearchParams(window.location.search).has('inspect')
   useEffect(() => bindBrowserInput(simulation, gl.domElement), [simulation, gl])
+  const preset = useSyncExternalStore(subscribeCameraPreset, getCameraPreset)
 
   useFrame(({ camera }, delta) => {
     if (!(camera instanceof OrthographicCamera)) return
     const rect = gl.domElement.getBoundingClientRect()
     simulation.advance(delta, (player) => {
-      updateCamera(camera, player, rect.width, rect.height)
+      updateCamera(camera, player, rect.width, rect.height, preset)
       return simulation.pointer ? projectCursor(camera, simulation.pointer, rect) : null
-    })
+    }, preset.yaw)
     const world = simulation.world
-    updateCamera(camera, world.player, rect.width, rect.height)
+    updateCamera(camera, world.player, rect.width, rect.height, preset)
     if (simulation.getStatus() === 'playing' && simulation.pointer) {
       updateAim(world, projectCursor(camera, simulation.pointer, rect))
     }
@@ -49,7 +51,7 @@ export function PlaygroundScene({ simulation }: { simulation: Simulation }) {
       screenPoint.set(point?.x ?? 0, 0, point?.z ?? 0).project(camera)
       gl.domElement.dataset.playground = JSON.stringify({
         ...world, status: simulation.getStatus(), held: [...simulation.held],
-        camera: camera.position.toArray(),
+        camera: camera.position.toArray(), cameraPreset: preset.id,
         targetScreen: { x: rect.left + (screenPoint.x + 1) * rect.width / 2, y: rect.top + (1 - screenPoint.y) * rect.height / 2 },
         enemiesScreen: world.enemies.map((enemy) => {
           screenPoint.set(enemy.x, 0, enemy.z).project(camera)

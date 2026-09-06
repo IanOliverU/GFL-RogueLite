@@ -1,6 +1,7 @@
 ﻿import { Canvas } from '@react-three/fiber'
 import { useState, useSyncExternalStore } from 'react'
 import { Simulation } from '../game/core/Simulation'
+import { setCameraPreset } from '../game/data/camera'
 import type { CharacterId } from '../game/data/characters'
 import { PlaygroundScene } from '../render/PlaygroundScene'
 import { PauseDialog } from '../ui/PauseDialog'
@@ -12,6 +13,11 @@ import { LevelUpDialog } from '../ui/LevelUpDialog'
 
 export function App() {
   const params = new URLSearchParams(window.location.search)
+  // Camera experiment override (?camera=classic|angled); defaults to Angled.
+  const requestedCamera = params.get('camera')
+  if (requestedCamera === 'classic' || requestedCamera === 'angled') {
+    setCameraPreset(requestedCamera)
+  }
   // Development-only progression shortcut: ?devxp=N grants N XP on run start.
   const devXp = Math.max(0, Math.floor(Number(params.get('devxp')) || 0))
   const [simulation] = useState(() => new Simulation(params.get('mode') === 'playground' ? 'playground' : 'combat'))
