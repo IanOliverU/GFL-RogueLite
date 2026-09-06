@@ -16,6 +16,8 @@ const ENVIRONMENT_ASSET_URLS = {
   barrel: '/assets/environment-kit/ENV_Barrel.glb',
   gatepost: '/assets/environment-kit/ENV_Gatepost.glb',
   debris: '/assets/environment-kit/ENV_DebrisSmall.glb',
+  wall: '/assets/environment-kit/ENV_WallSection.glb',
+  piperack: '/assets/environment-kit/ENV_PipeRack.glb',
 } as const
 
 type EnvironmentAsset = keyof typeof ENVIRONMENT_ASSET_URLS
@@ -42,7 +44,7 @@ function EnvironmentAssetModel({ asset, position, rotation = 0, scale = 1 }: {
 
 function CheckpointProp({ prop }: { prop: EnvironmentProp }) {
   const scale = prop.scale ?? 1
-  if (prop.kind === 'fence' || prop.kind === 'crate' || prop.kind === 'barrel' || prop.kind === 'gatepost' || prop.kind === 'debris') {
+  if (prop.kind === 'fence' || prop.kind === 'crate' || prop.kind === 'barrel' || prop.kind === 'gatepost' || prop.kind === 'debris' || prop.kind === 'ground' || prop.kind === 'wall' || prop.kind === 'piperack') {
     return <EnvironmentAssetModel asset={prop.kind} position={[prop.x, 0, prop.z]} rotation={prop.rotation} scale={scale} />
   }
   if (prop.kind === 'rock') return <mesh position={[prop.x, 0.5 * scale, prop.z]} scale={scale} rotation={[0.1, 0.5, 0]} castShadow receiveShadow>
@@ -54,9 +56,11 @@ function CheckpointProp({ prop }: { prop: EnvironmentProp }) {
   </group>
 }
 
-function CheckpointBarricades({ obstacles }: { obstacles: readonly Obstacle[] }) {
+function CoverBarricades({ obstacles }: { obstacles: readonly Obstacle[] }) {
+  // Every collision cover renders as a barricade-kit instance scaled to its
+  // simulation rectangle, so visuals always match collision footprints.
   return <>
-    {obstacles.filter((obstacle) => obstacle.id.startsWith('checkpoint-barricade-')).map((obstacle) => {
+    {obstacles.map((obstacle) => {
       const width = obstacle.maxX - obstacle.minX
       const depth = obstacle.maxZ - obstacle.minZ
       const rotate = depth > width
@@ -93,12 +97,9 @@ export function Arena({ obstacles = [] }: { obstacles?: readonly Obstacle[] }) {
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.006, -8]} receiveShadow><planeGeometry args={[width - 4, 5.5]} /><meshStandardMaterial color={wornConcrete} roughness={1} /></mesh>
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[18, 0.008, 0]} receiveShadow><planeGeometry args={[6, depth - 5]} /><meshStandardMaterial color="#665f50" roughness={1} /></mesh>
     {[-42, -18, 6, 30, 48].map((x) => <mesh key={x} rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.012, -8]}><planeGeometry args={[0.32, 4.9]} /><meshBasicMaterial color="#b28a35" /></mesh>)}
-    {obstacles.filter((obstacle) => !obstacle.id.startsWith('checkpoint-barricade-')).map((obstacle) => <mesh key={obstacle.id} position={[(obstacle.minX + obstacle.maxX) / 2, 0.48, (obstacle.minZ + obstacle.maxZ) / 2]} castShadow receiveShadow>
-      <boxGeometry args={[obstacle.maxX - obstacle.minX, 0.96, obstacle.maxZ - obstacle.minZ]} /><meshStandardMaterial color="#77746a" roughness={0.96} />
-    </mesh>)}
     <EnvironmentAssetModel asset="ground" position={[-18, 0, -17]} />
     <EnvironmentAssetModel asset="ground" position={[-18, 0, -11]} />
-    <CheckpointBarricades obstacles={obstacles} />
+    <CoverBarricades obstacles={obstacles} />
     {ENVIRONMENT_PROPS.map((prop) => <CheckpointProp key={prop.id} prop={prop} />)}
     <BoundaryFence />
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}><ringGeometry args={[2.8, 2.84, 64]} /><meshBasicMaterial color="#b59d69" /></mesh>

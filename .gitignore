@@ -14,3 +14,8 @@ playwright-report/
 *.blend2
 .DS_Store
 Thumbs.db
+# Local reference screenshots
+/src/Stage Screenshots/
+
+# Original character MMD reference files (exact project-relative path)
+src/Character MMD/

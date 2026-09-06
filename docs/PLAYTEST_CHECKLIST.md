@@ -118,6 +118,8 @@ M5 checkpoint automated evidence 2026-09-06 (software WebGL, not a substitute fo
 
 M5 composition evidence (same camera before/after): `m5-checkpoint-before.png` shows the hatched demo scatter; `m5-checkpoint-playing.png` shows the smooth composed entrance (gateposts, apron, supply corner, extended fence, debris). Ian's manual pass should confirm: entrance/perimeter/supply readability, road connection, no striped materials, comfortable fighting/maneuvering, and that decorative fences/posts never read as walkable.
 
+M5 task-2 map tour (software WebGL): walked staging → checkpoint → west works (+W boundary) → storage → south field → SE corner → north boundary at full HP, zero page errors (`m5-area-*.png`). Ian should spot-check: staging openness, storage yard readability from the road, south-field L-corner, west works silhouette, perimeter edges, and confirm far areas stay navigable with readable combat. Boxes stay unchecked pending Ian.
+
 - [ ] At game scale, bullets and warnings stand out from lighting/effects.
 - [ ] Sprite edges, feet, facings and muzzle placement look coherent.
 - [ ] Audio starts after a user gesture and responds to volume settings.

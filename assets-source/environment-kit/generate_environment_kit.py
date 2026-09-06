@@ -9,6 +9,7 @@ ground placement anchor. glTF export converts Z-up to Y-up for three.js.
 """
 
 from pathlib import Path
+import math
 import bpy
 
 
@@ -107,7 +108,8 @@ def clear_preview():
 def add_preview_instances(assets):
     """Spaced source-only previews; never selected by export_asset()."""
     preview = clear_preview()
-    placements = [(-9, -5, 0), (-3, -5, 0), (3, -5, 0), (9, -5, 0), (-7, 4, 0), (-1, 4, 0), (5, 4, 0)]
+    placements = [(-9, -5, 0), (-3, -5, 0), (3, -5, 0),
+(9, -5, 0), (-7, 4, 0), (-1, 4, 0), (5, 4, 0), (15, -5, 0), (11, 4, 0)]
     for root, location in zip(assets, placements):
         instance = bpy.data.objects.new(f"PREVIEW_{root.name}", None)
         instance.instance_type = "COLLECTION"
@@ -216,7 +218,31 @@ def build_kit():
         make_box("Debris_Plate", (0.55, 0.40, 0.03), (0.05, 0.35, 0.035), metal, 0.0, (0, 0, 0.2)),
         make_box("Debris_Slat", (0.50, 0.09, 0.07), (-0.10, -0.35, 0.035), crate_wood, 0.0, (0, 0, 1.1)),
     ], "ENV_DebrisSmall", kit)
-    assets = [ground, barricade, fence, crate, barrel, gatepost, debris]
+
+    # Concrete wall section: 4 m landmark piece for yard edges. Decorative;
+    # collision, where needed, stays in the typed obstacle data.
+    wall = parent_parts([
+        make_box("Wall_Foot", (4.1, 0.6, 0.12), (0, 0, 0.06), concrete_patch, 0.02),
+        make_box("Wall_Main", (4.0, 0.4, 1.5), (0, 0, 0.75), concrete, 0.03),
+        make_box("Wall_Cap", (4.2, 0.55, 0.14), (0, 0, 1.55), concrete_edge, 0.02),
+        make_box("Wall_Inset", (3.2, 0.03, 0.5), (0, -0.215, 0.8), plate),
+        make_box("Wall_Stripe", (1.2, 0.032, 0.14), (-1.0, -0.216, 0.35), hazard),
+    ], "ENV_WallSection", kit)
+
+    # Industrial pipe rack: twin pipes on feet with a valve box. Distinct
+    # service-yard silhouette; decorative only.
+    pipe_a = make_cylinder("Rack_Pipe_A", 0.16, 3.0, (0, -0.18, 0.55), metal, vertices=10)
+    pipe_a.rotation_euler = (0, math.pi / 2, 0)
+    pipe_b = make_cylinder("Rack_Pipe_B", 0.16, 3.0, (0, 0.18, 0.55), metal, vertices=10)
+    pipe_b.rotation_euler = (0, math.pi / 2, 0)
+    rack = parent_parts([
+        pipe_a,
+        pipe_b,
+        make_box("Rack_Foot_A", (0.25, 0.7, 0.5), (-1.2, 0, 0.25), metal, 0.01),
+        make_box("Rack_Foot_B", (0.25, 0.7, 0.5), (1.2, 0, 0.25), metal, 0.01),
+        make_box("Rack_Valve", (0.3, 0.3, 0.4), (0.5, -0.18, 0.85), plate, 0.01),
+    ], "ENV_PipeRack", kit)
+    assets = [ground, barricade, fence, crate, barrel, gatepost, debris, wall, rack]
     add_preview_instances(assets)
     return assets
 
