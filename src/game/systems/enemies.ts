@@ -6,13 +6,22 @@ import { separateEnemies } from './enemySeparation'
 import { stepSpawning } from './spawning'
 
 const distance = (a: GroundPoint, b: GroundPoint) => Math.hypot(a.x - b.x, a.z - b.z)
+const STRANDED_DISTANCE = 52
+const STRANDED_DELAY = 10
 
 /** Tiny visibility graph around the cover blocks, recalculated from current positions. */
 export function pursuitTarget(start: GroundPoint, end: GroundPoint, obstacles: readonly Obstacle[], radius: number = PURSUER.radius): GroundPoint {
   const clear = (a: GroundPoint, b: GroundPoint) => obstacles.every((box) => segmentBox(a, b, box, radius) === null)
   if (clear(start, end)) return end
   const margin = radius + 0.06
-  const nodes = [start, ...obstacles.flatMap((box) => [
+  // Most M5 cover is many camera views away. Only nearby or initially blocking
+  // pieces can contribute a useful first detour, keeping the small visibility
+  // graph bounded as the authored map grows.
+  const relevant = obstacles.filter((box) => {
+    const centre = { x: (box.minX + box.maxX) / 2, z: (box.minZ + box.maxZ) / 2 }
+    return segmentBox(start, end, box, radius) !== null || distance(centre, start) < 18 || distance(centre, end) < 18
+  })
+  const nodes = [start, ...relevant.flatMap((box) => [
     { x: box.minX - margin, z: box.minZ - margin }, { x: box.maxX + margin, z: box.minZ - margin },
     { x: box.minX - margin, z: box.maxZ + margin }, { x: box.maxX + margin, z: box.maxZ + margin },
   ]), end]
@@ -50,7 +59,14 @@ export function stepEnemies(world: World, dt: number) {
     moveCircle(enemy, (length ? (goal.x - enemy.x) / length * speed : 0) + enemy.knockback.x * dt, (length ? (goal.z - enemy.z) / length * speed : 0) + enemy.knockback.z * dt, definition.radius, world.obstacles)
     enemy.knockback.x *= Math.exp(-10 * dt)
     enemy.knockback.z *= Math.exp(-10 * dt)
+    // A player can now cross several camera views before an old group catches up.
+    // Remove only a group that stayed well beyond combat reach; this is neither a
+    // kill nor an XP source, and stops old enemies occupying the live cap forever.
+    enemy.strandedRemaining = distance(enemy, world.player) > STRANDED_DISTANCE
+      ? enemy.strandedRemaining - dt
+      : STRANDED_DELAY
   }
+  world.enemies = world.enemies.filter((enemy) => enemy.strandedRemaining > 0)
   separateEnemies(world)
   for (const enemy of world.enemies) {
     if (enemy.kind === 'pursuer' && distance(enemy, world.player) <= PURSUER.radius + PLAYER_RADIUS) damagePlayer(world, PURSUER.damage)

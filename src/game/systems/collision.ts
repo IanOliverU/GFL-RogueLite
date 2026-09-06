@@ -1,5 +1,5 @@
 import type { GroundPoint } from '../core/world'
-import { ARENA_HALF_SIZE } from '../core/world'
+import { MAP_HALF_DEPTH, MAP_HALF_WIDTH } from '../core/world'
 import type { Obstacle } from '../data/arena'
 
 export function segmentCircle(start: GroundPoint, end: GroundPoint, center: GroundPoint, radius: number): number | null {
@@ -31,9 +31,9 @@ export function segmentBox(start: GroundPoint, end: GroundPoint, box: Obstacle, 
 export function boundaryHit(start: GroundPoint, end: GroundPoint): number | null {
   let t = 1
   let hit = false
-  for (const axis of ['x', 'z'] as const) {
-    if (Math.abs(end[axis]) > ARENA_HALF_SIZE) {
-      t = Math.min(t, (Math.sign(end[axis]) * ARENA_HALF_SIZE - start[axis]) / (end[axis] - start[axis]))
+  for (const [axis, limit] of [['x', MAP_HALF_WIDTH], ['z', MAP_HALF_DEPTH]] as const) {
+    if (Math.abs(end[axis]) > limit) {
+      t = Math.min(t, (Math.sign(end[axis]) * limit - start[axis]) / (end[axis] - start[axis]))
       hit = true
     }
   }
@@ -42,15 +42,15 @@ export function boundaryHit(start: GroundPoint, end: GroundPoint): number | null
 
 /** Axis-separated swept movement permits sliding, never crossing the cover or perimeter. */
 export function moveCircle(position: GroundPoint, dx: number, dz: number, radius: number, obstacles: readonly Obstacle[]) {
-  const limit = ARENA_HALF_SIZE - radius
-  let x = Math.max(-limit, Math.min(limit, position.x + dx))
+  const xLimit = MAP_HALF_WIDTH - radius, zLimit = MAP_HALF_DEPTH - radius
+  let x = Math.max(-xLimit, Math.min(xLimit, position.x + dx))
   for (const box of obstacles) {
     if (position.z > box.minZ - radius && position.z < box.maxZ + radius) {
       if (dx > 0 && position.x <= box.minX - radius && x > box.minX - radius) x = box.minX - radius
       if (dx < 0 && position.x >= box.maxX + radius && x < box.maxX + radius) x = box.maxX + radius
     }
   }
-  let z = Math.max(-limit, Math.min(limit, position.z + dz))
+  let z = Math.max(-zLimit, Math.min(zLimit, position.z + dz))
   for (const box of obstacles) {
     if (x > box.minX - radius && x < box.maxX + radius) {
       if (dz > 0 && position.z <= box.minZ - radius && z > box.minZ - radius) z = box.minZ - radius
@@ -65,8 +65,7 @@ export function moveCircle(position: GroundPoint, dx: number, dz: number, radius
 export function moveCircleSwept(position: GroundPoint, dx: number, dz: number, radius: number, obstacles: readonly Obstacle[]) {
   const end = { x: position.x + dx, z: position.z + dz }
   let fraction = 1
-  const limit = ARENA_HALF_SIZE - radius
-  for (const axis of ['x', 'z'] as const) {
+  for (const [axis, limit] of [['x', MAP_HALF_WIDTH - radius], ['z', MAP_HALF_DEPTH - radius]] as const) {
     if (Math.abs(end[axis]) > limit) fraction = Math.min(fraction, (Math.sign(end[axis]) * limit - position[axis]) / (end[axis] - position[axis]))
   }
   for (const box of obstacles) {

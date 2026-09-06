@@ -77,10 +77,10 @@ describe('dash', () => {
 
     const perimeter = new Simulation('combat')
     perimeter.startRun('sabrina')
-    perimeter.world.player = { x: 17, z: 0 }
+    perimeter.world.player = { x: ARENA_HALF_SIZE - PLAYER_RADIUS - 1, z: 0 }
     perimeter.pointer = { x: 0, y: 0 }
     perimeter.requestDash()
-    runSteps(perimeter, 12, () => ({ x: 20, z: 0 }))
+    runSteps(perimeter, 12, () => ({ x: 100, z: 0 }))
     expect(perimeter.world.player.x).toBeCloseTo(ARENA_HALF_SIZE - PLAYER_RADIUS, 6)
   })
 

@@ -55,8 +55,9 @@ test('production scene: all-around aiming, stationary cursor during movement, re
   await expectCursorAlignment(page, 820, 570)
   await page.screenshot({ path: 'test-results/m1-resized.png' })
   await page.keyboard.down('KeyD')
-  // 40 x 40 arena: the 0.4-radius player stops at 19.6.
-  await expect.poll(async () => (await snapshot(page)).player.x, { timeout: 8000 }).toBe(19.6)
+  // M5 120 x 96 map: the 0.4-radius player stops at 60 - 0.4 = 59.6.
+  // Playground mode has no obstacles; crossing ~56 units at 6 u/s needs ~10 s.
+  await expect.poll(async () => (await snapshot(page)).player.x, { timeout: 20000 }).toBe(59.6)
   await page.keyboard.up('KeyD')
   expect(errors).toEqual([])
 })
@@ -67,8 +68,11 @@ test('pause button and Escape clear held inputs and stop simulation until delibe
   await expect.poll(async () => (await snapshot(page)).player.z).toBeLessThan(-0.5)
   await page.getByRole('button', { name: 'Pause Esc' }).click()
   await expect(page.getByRole('dialog')).toBeVisible()
+  // The inspect snapshot is written by the render loop, which can lag a frame
+  // under software WebGL now that shadows are enabled; the game itself clears
+  // held inputs synchronously inside pause().
+  await expect.poll(async () => (await snapshot(page)).held, { timeout: 5000 }).toEqual([])
   const paused = await snapshot(page)
-  expect(paused.held).toEqual([])
   await page.waitForTimeout(250)
   expect((await snapshot(page)).elapsed).toBe(paused.elapsed)
   await page.keyboard.up('KeyW')

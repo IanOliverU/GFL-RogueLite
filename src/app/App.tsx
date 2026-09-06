@@ -27,7 +27,7 @@ export function App() {
     {inSelection ? <CharacterSelection selected={selected} onSelect={setSelected} onStart={() => simulation.startRun(selected, devXp > 0 ? { bonusXp: devXp } : undefined)} /> : <>
       <section className="arena-view" aria-label="Movement and aiming arena">
         <RenderErrorBoundary>
-          <Canvas orthographic camera={{ position: [0, 22, 18], near: 0.1, far: 250 }} dpr={[1, 1.5]} fallback={<div className="graphics-error">WebGL is unavailable. Try a browser with graphics acceleration enabled.</div>}>
+          <Canvas shadows="percentage" orthographic camera={{ position: [0, 22, 18], near: 0.1, far: 250 }} dpr={[1, 1.5]} fallback={<div className="graphics-error">WebGL is unavailable. Try a browser with graphics acceleration enabled.</div>}>
             <PlaygroundScene simulation={simulation} />
           </Canvas>
         </RenderErrorBoundary>

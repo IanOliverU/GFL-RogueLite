@@ -61,8 +61,9 @@ export function PlaygroundScene({ simulation }: { simulation: Simulation }) {
 
   return <>
     <color attach="background" args={['#152328']} />
-    <ambientLight intensity={1.7} />
-    <directionalLight position={[-6, 14, 8]} intensity={2} />
+    <ambientLight intensity={0.72} />
+    <hemisphereLight args={['#d5c39c', '#243538', 0.72]} />
+    <directionalLight castShadow position={[-12, 18, 10]} intensity={2.15} shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-42} shadow-camera-right={42} shadow-camera-top={42} shadow-camera-bottom={-42} shadow-bias={-0.0005} shadow-normalBias={0.8} />
     <Arena obstacles={simulation.world.obstacles} />
     <group ref={character}><CharacterPlaceholder color={CHARACTERS[simulation.world.dollId].color} /></group>
     <AimIndicator directionRef={direction} targetRef={target} />

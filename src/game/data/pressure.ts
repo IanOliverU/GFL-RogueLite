@@ -10,12 +10,14 @@ export const PRESSURE_PHASES = [
   { start: 120, interval: 1.6, maxAlive: 18, maxRanged: 2 },
 ] as const
 export const FIRST_SPAWN_DELAY = 4
-export const MIN_SPAWN_DISTANCE = 8
+export const MIN_SPAWN_DISTANCE = 12
 /** Points preferring this distance are treated as out of the camera view. */
-export const FAR_SPAWN_DISTANCE = 16
+export const FAR_SPAWN_DISTANCE = 22
 export const SPAWN_POINTS = [
-  { x: 0, z: -17 }, { x: 14, z: 12 }, { x: -14, z: 12 }, { x: 14, z: -12 },
-  { x: -14, z: -12 }, { x: 0, z: 17 }, { x: 17, z: 0 }, { x: -17, z: 0 },
+  { x: -54, z: -38 }, { x: -30, z: -38 }, { x: 0, z: -38 }, { x: 30, z: -38 }, { x: 54, z: -38 },
+  { x: -54, z: -12 }, { x: 54, z: -12 }, { x: -54, z: 12 }, { x: 54, z: 12 },
+  { x: -54, z: 38 }, { x: -30, z: 38 }, { x: 0, z: 38 }, { x: 30, z: 38 }, { x: 54, z: 38 },
+  { x: -30, z: -24 }, { x: 0, z: -24 }, { x: 30, z: -24 }, { x: -30, z: 24 }, { x: 0, z: 24 }, { x: 30, z: 24 },
 ] as const
 export function pressureAt(elapsed: number) {
   for (let i = PRESSURE_PHASES.length - 1; i >= 0; i--) if (elapsed >= PRESSURE_PHASES[i].start) return PRESSURE_PHASES[i]

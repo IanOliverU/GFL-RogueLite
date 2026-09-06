@@ -31,12 +31,14 @@ test('pressure phases sustain density with readable ranged counts', async ({ pag
   let maxEnemies = 0
   let maxRanged = 0
   const start = Date.now()
-  while (Date.now() - start < 100000) {
+  // M5 120 x 96 map: far spawns need travel time, so sustain the run deeper
+  // into phase 3 to give the kill stream the same engagement budget.
+  while (Date.now() - start < 115000) {
     const state = await snapshot(page)
-    if (state.status === 'game_over') break
+    if (state.status === 'game_over') break;
     maxEnemies = Math.max(maxEnemies, state.enemies.length)
     maxRanged = Math.max(maxRanged, state.enemies.filter((enemy) => enemy.kind === 'ranged').length)
-    if (state.elapsed >= 70) break
+    if (state.elapsed >= 80) break
     const dialog = page.locator('.levelup-card')
     if (await dialog.isVisible()) {
       if (await page.getByRole('button', { name: /Broad shotgun/ }).isVisible()) {
@@ -53,7 +55,18 @@ test('pressure phases sustain density with readable ranged counts', async ({ pag
       await page.waitForTimeout(300)
       continue
     }
-    if (state.enemiesScreen.length > 0) await page.mouse.move(state.enemiesScreen[0].x, state.enemiesScreen[0].y)
+    // M5 120 x 96 map: enemies arrive from far spawns in every direction, so
+    // aim at the nearest enemy to the screen centre (the player) instead of
+    // the oldest one, which may be a distant walker.
+    if (state.enemiesScreen.length > 0) {
+      let best = state.enemiesScreen[0]
+      let bestDistance = Math.hypot(best.x - 640, best.y - 400)
+      for (const candidate of state.enemiesScreen) {
+        const distance = Math.hypot(candidate.x - 640, candidate.y - 400)
+        if (distance < bestDistance) { best = candidate; bestDistance = distance }
+      }
+      await page.mouse.move(best.x, best.y)
+    }
     const leg = Math.floor((Date.now() - start) / 2000) % legs.length
     if (leg !== legIndex) {
       legIndex = leg
@@ -69,7 +82,7 @@ test('pressure phases sustain density with readable ranged counts', async ({ pag
   for (const key of allKeys) await page.keyboard.up(key)
 
   const end = await snapshot(page)
-  expect(end.elapsed).toBeGreaterThanOrEqual(70)
+  expect(end.elapsed).toBeGreaterThanOrEqual(80)
   // Lethal builds suppress the live count, so density and throughput agree:
   // several enemies up at once plus a steady kill stream through phase 2+.
   expect(maxEnemies).toBeGreaterThanOrEqual(7)

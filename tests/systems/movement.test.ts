@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { movePlayer } from '../../src/game/systems/movement'
-import { ARENA_HALF_SIZE, PLAYER_RADIUS } from '../../src/game/core/world'
+import { MAP_HALF_DEPTH, MAP_HALF_WIDTH, PLAYER_RADIUS } from '../../src/game/core/world'
 
-const LIMIT = ARENA_HALF_SIZE - PLAYER_RADIUS
+const X_LIMIT = MAP_HALF_WIDTH - PLAYER_RADIUS
+const Z_LIMIT = MAP_HALF_DEPTH - PLAYER_RADIUS
 
 describe('movement', () => {
   it('travels equal distances for cardinal and diagonal movement', () => {
@@ -23,11 +24,11 @@ describe('movement', () => {
   it('keeps the entire collision circle inside every edge and allows sliding', () => {
     const player = { x: 0, z: 0 }
     movePlayer(player, new Set(['KeyD', 'KeyS']), 100)
-    expect(player).toEqual({ x: LIMIT, z: LIMIT })
+    expect(player).toEqual({ x: X_LIMIT, z: Z_LIMIT })
     movePlayer(player, new Set(['KeyD', 'KeyW']), 0.5)
-    expect(player.x).toBe(LIMIT)
-    expect(player.z).toBeLessThan(LIMIT)
+    expect(player.x).toBe(X_LIMIT)
+    expect(player.z).toBeLessThan(Z_LIMIT)
     movePlayer(player, new Set(['KeyA', 'KeyW']), 100)
-    expect(player).toEqual({ x: -LIMIT, z: -LIMIT })
+    expect(player).toEqual({ x: -X_LIMIT, z: -Z_LIMIT })
   })
 })

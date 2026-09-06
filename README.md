@@ -99,6 +99,14 @@ Simulation contains no React, browser or Three.js imports. React subscribes to l
 
 `public/assets/` and `assets-source/` will be created when actual asset files require them. No empty future-system folders are scaffolded. Source geometry lives in `src/render/`. Keep optimized runtime assets separate from editable art sources when introduced. `.gitignore` excludes dependencies, builds, test captures, temporary files, secrets, and Blender backup files while allowing useful `.blend` source files.
 
+## M5 environment blockout (acceptance pending)
+
+The first M5 pass expands the finite playfield to **120 x 96 units** (X × Z). At the normal 6 u/s movement speed, an uninterrupted east–west crossing takes about **20 seconds**, and the camera reveals several new views rather than framing the whole stage. The original starting area remains at the centre. The north-west checkpoint around **X −18 / Z −16** now uses original Blender-exported low barricade, plated-fence, supply-crate, barrel and ground/concrete modules. Low barricade visuals use the existing matching collision shapes; fences, crates, barrels, route markings and distant landmarks remain decorative. Dark perimeter fencing marks the hard boundary.
+
+Enemy pressure retains its phase pacing/caps/ranged limits but chooses from distributed, safe spawn positions across the larger map (12-unit minimum, 22-unit preferred distance). An enemy that remains more than 52 units away for 10 seconds is removed without a kill or XP drop, so an abandoned distant group cannot indefinitely consume the live cap. Normal defeats and their XP rewards are unchanged.
+
+Editable kit source is `assets-source/environment-kit/m5_environment_kit.blend`; its repeatable generator is `assets-source/environment-kit/generate_environment_kit.py`; runtime GLBs live in `public/assets/environment-kit/`. The rest of the larger stage remains a documented procedural blockout pending art review.
+
 ## Pinned toolchain
 
 `package-lock.json` pins the full install; do not replace it with a second package-manager lockfile.

@@ -105,6 +105,19 @@ Provisional palette: #121316 bg, #1E2024 cards, #3B3E44 borders, #FF7800 accent,
 
 ## M5/M6 presentation and delivery
 
+### M5 bounded-environment blockout (acceptance pending)
+
+- [ ] From the centre, walk north, south, east and west to the perimeter: new terrain/landmarks should reveal over several camera views while the doll stays readable.
+- [ ] Inspect the north-west checkpoint (about X -18 / Z -16): Blender GLB low concrete cover blocks movement/projectiles; fence, crates and barrels do not create surprise collision.
+- [ ] Dash into checkpoint cover and all four outer boundaries; cursor aim remains aligned while the camera follows and after resize.
+- [ ] Stay near the start, a distant edge and each corner long enough for pressure: enemies arrive safely, remain reachable, and do not visibly pop in beside the player.
+- [ ] Pause, level up, retry and switch character while away from the start; no old enemies/projectiles/input persist.
+- [ ] Review the Blender checkpoint kit at actual camera scale: worn concrete, plated fencing, crate and barrel forms should remain readable without obscuring combat. Real-GPU frame timing remains pending.
+
+M5 checkpoint automated evidence 2026-09-06 (software WebGL, not a substitute for Ian's manual pass): focused production walkthrough `scripts/verify-m5-browser.mjs` reached X -8.1 / Z -12.6, stopped by the eastern barricade collision, verified pause, zero page errors; `test-results/m5-checkpoint-playing.png` inspected (grounded upright kit, hazard details, consistent shadows, doll/pursuer/aim/HUD readable). Full browser suite 21/21 on the final build covers dash-into-cover, warnings/projectiles, pause/level-up/retry/switch, and resize aim. Boxes above stay unchecked pending Ian's in-browser review.
+
+M5 composition evidence (same camera before/after): `m5-checkpoint-before.png` shows the hatched demo scatter; `m5-checkpoint-playing.png` shows the smooth composed entrance (gateposts, apron, supply corner, extended fence, debris). Ian's manual pass should confirm: entrance/perimeter/supply readability, road connection, no striped materials, comfortable fighting/maneuvering, and that decorative fences/posts never read as walkable.
+
 - [ ] At game scale, bullets and warnings stand out from lighting/effects.
 - [ ] Sprite edges, feet, facings and muzzle placement look coherent.
 - [ ] Audio starts after a user gesture and responds to volume settings.
