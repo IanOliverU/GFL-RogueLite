@@ -120,6 +120,18 @@ M5 composition evidence (same camera before/after): `m5-checkpoint-before.png` s
 
 M5 task-2 map tour (software WebGL): walked staging → checkpoint → west works (+W boundary) → storage → south field → SE corner → north boundary at full HP, zero page errors (`m5-area-*.png`). Ian should spot-check: staging openness, storage yard readability from the road, south-field L-corner, west works silhouette, perimeter edges, and confirm far areas stay navigable with readable combat. Boxes stay unchecked pending Ian.
 
+## M5 task-3 Sabrina visual pipeline (pending Ian's art-direction verdict)
+
+Proven for Sabrina only; other five dolls still use planes. Automated evidence (software WebGL): full Sabrina lifecycle browser test passed; `sabrina-aim-north/firing-1/firing-2/dash/hit/fallen/retry/fallback.png` inspected.
+
+- [ ] She reads as Sabrina at game scale: hair silhouette, outfit colors, no gray untextured patches.
+- [ ] Body yaw follows the cursor in all quadrants; strafing looks coherent.
+- [ ] Firing shows recoil + muzzle flash; tracers still originate along aim.
+- [ ] Dash leans; hurt flashes red; death falls flat and stays down; retry stands her back up.
+- [ ] Pause/level-up freeze her; doll switch to another doll shows planes, switching back shows her.
+- [ ] Hit feedback never obscures enemies, gems, or warnings.
+- [ ] Missing-asset fallback (planes) acceptable for clean checkouts.
+
 - [ ] At game scale, bullets and warnings stand out from lighting/effects.
 - [ ] Sprite edges, feet, facings and muzzle placement look coherent.
 - [ ] Audio starts after a user gesture and responds to volume settings.

@@ -19,3 +19,9 @@ Thumbs.db
 
 # Original character MMD reference files (exact project-relative path)
 src/Character MMD/
+
+# Derived character working files and local-only runtime exports.
+# Permission to redistribute the original MMD assets is unresolved, so
+# anything baked from them stays local; the game falls back to placeholders.
+assets-source/characters/*.blend
+public/assets/characters/
