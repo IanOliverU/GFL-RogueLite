@@ -1,4 +1,14 @@
 export interface Obstacle { readonly id: string; readonly minX: number; readonly maxX: number; readonly minZ: number; readonly maxZ: number }
+
+/** Development stage selector. `district` is the default arena;
+ * `thirdperson` is the compact third-person control-test arena, entered only
+ * through ?mode=thirdperson (experimental; M5 remains unaccepted). */
+export type StageId = 'district' | 'thirdperson'
+export const DEFAULT_STAGE: StageId = 'district'
+export function parseStage(value: string | null): StageId {
+  if (value === 'thirdperson') return 'thirdperson'
+  return 'district'
+}
 export type EnvironmentPropKind = 'barricade' | 'fence' | 'crate' | 'barrel' | 'rock' | 'marker' | 'gatepost' | 'debris' | 'ground' | 'wall' | 'piperack'
 export interface EnvironmentProp {
   readonly id: string
@@ -26,6 +36,34 @@ export const COMBAT_OBSTACLES: readonly Obstacle[] = [
   { id: 'yard-cover-east', minX: 34, maxX: 40, minZ: -30, maxZ: -28.9 },
   { id: 'yard-cover-south', minX: 24, maxX: 25.1, minZ: 25, maxZ: 31 },
 ]
+
+/**
+ * Third-person control-test arena collision (blockout-grade, ?mode=thirdperson
+ * only). A compact walled enclosure (~38 x 33) around the origin with three
+ * readable covers and broad lanes; decorative rocks/towers stay outside the
+ * walls. Flat-ground simulation throughout; walls double as the playable
+ * boundary so the perspective camera never stares into an empty void.
+ */
+export const THIRDPERSON_OBSTACLES: readonly Obstacle[] = [
+  { id: 'tp-wall-n', minX: -18, maxX: 18, minZ: -16, maxZ: -14.8 },
+  { id: 'tp-wall-s', minX: -18, maxX: 18, minZ: 14.8, maxZ: 16 },
+  { id: 'tp-wall-w', minX: -19.2, maxX: -18, minZ: -16, maxZ: 16 },
+  { id: 'tp-wall-e', minX: 18, maxX: 19.2, minZ: -16, maxZ: 16 },
+  { id: 'tp-crates', minX: -8, maxX: -6, minZ: 2, maxZ: 3.2 },
+  { id: 'tp-rock', minX: 6, maxX: 8, minZ: -4, maxZ: -2.8 },
+  { id: 'tp-barrier', minX: 2, maxX: 5, minZ: 8, maxZ: 9 },
+]
+
+/** Solid heights for third-person camera collision, metres. */
+export const THIRDPERSON_HEIGHTS: Readonly<Record<string, number>> = {
+  'tp-wall-n': 3.2,
+  'tp-wall-s': 3.2,
+  'tp-wall-w': 3.2,
+  'tp-wall-e': 3.2,
+  'tp-crates': 1.6,
+  'tp-rock': 2.4,
+  'tp-barrier': 1.0,
+}
 
 /** Original procedural environment placement data; not Blender assets. */
 export const ENVIRONMENT_PROPS: readonly EnvironmentProp[] = [

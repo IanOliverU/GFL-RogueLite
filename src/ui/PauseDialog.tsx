@@ -2,7 +2,12 @@ import { useEffect, useRef, useSyncExternalStore, type KeyboardEvent } from 'rea
 import type { Simulation } from '../game/core/Simulation'
 import { CAMERA_PRESETS, getCameraPresetId, setCameraPreset, subscribeCameraPreset, type CameraPresetId } from '../game/data/camera'
 
-export function PauseDialog({ simulation }: { simulation: Simulation }) {
+export function PauseDialog({ simulation, hideCamera = false, thirdPersonHints = false }: {
+  simulation: Simulation
+  /** Third-person experiment: Classic/Angled presets do not apply here. */
+  hideCamera?: boolean
+  thirdPersonHints?: boolean
+}) {
   const resumeButton = useRef<HTMLButtonElement>(null)
   const restartButton = useRef<HTMLButtonElement>(null)
   const selectionButton = useRef<HTMLButtonElement>(null)
@@ -40,7 +45,7 @@ export function PauseDialog({ simulation }: { simulation: Simulation }) {
       {inCombat && <button ref={restartButton} className="secondary-button" onClick={() => simulation.startRun(simulation.world.dollId)}>Restart run</button>}
       {inCombat && <button ref={selectionButton} className="secondary-button" onClick={() => simulation.returnToSelection()}>Change character</button>}
       <small>{inCombat ? 'Restarting or changing character discards the current run. ' : ''}Press fresh movement keys after resuming.</small>
-      <div className="camera-switch" role="group" aria-label="Camera preset">
+      {!hideCamera && <div className="camera-switch" role="group" aria-label="Camera preset">
         <span>Camera</span>
         {(Object.keys(CAMERA_PRESETS) as CameraPresetId[]).map((id) => (
           <button
@@ -53,11 +58,13 @@ export function PauseDialog({ simulation }: { simulation: Simulation }) {
             {CAMERA_PRESETS[id].label}
           </button>
         ))}
-      </div>
+      </div>}
       <ul className="control-hints" aria-label="Controls">
         <li><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span> Move</li>
         {inCombat && <li><span><kbd>Space</kbd></span> Dash</li>}
-        <li><span className="cursor-icon">↗</span> Mouse to aim{inCombat ? ' · Auto-fire in enemy range · Automatic reload' : ''}</li>
+        {thirdPersonHints
+          ? <li><span className="cursor-icon">◎</span> Mouse look · Hold Left Click to fire · Automatic reload</li>
+          : <li><span className="cursor-icon">↗</span> Mouse to aim{inCombat ? ' · Auto-fire in enemy range · Automatic reload' : ''}</li>}
       </ul>
     </section>
   </div>

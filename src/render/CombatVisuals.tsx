@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Color, InstancedMesh, Object3D } from 'three'
+import { Color, DoubleSide, InstancedMesh, Object3D } from 'three'
 import type { Simulation } from '../game/core/Simulation'
 import { ENEMY_DEFINITIONS, MAX_ENEMIES, MAX_HOSTILE_PROJECTILES, MAX_PROJECTILES, PURSUER } from '../game/data/arena'
 import { MAX_GEMS } from '../game/data/progression'
@@ -11,7 +11,7 @@ const color = new Color()
 const ENEMY_COLORS = { pursuer: '#d8756d', ranged: '#b487d2' } as const
 
 /** Fixed-capacity batches consume simulation entities without per-entity React state. */
-export function CombatVisuals({ simulation }: { simulation: Simulation }) {
+export function CombatVisuals({ simulation, bulletHeight = 0.12 }: { simulation: Simulation; bulletHeight?: number }) {
   const enemies = useRef<InstancedMesh>(null)
   const bullets = useRef<InstancedMesh>(null)
   const hostile = useRef<InstancedMesh>(null)
@@ -49,7 +49,7 @@ export function CombatVisuals({ simulation }: { simulation: Simulation }) {
     if (bullets.current) {
       bullets.current.count = world.projectiles.length
       world.projectiles.forEach((projectile, index) => {
-        transform.position.set(projectile.x, 0.12, projectile.z)
+        transform.position.set(projectile.x, bulletHeight, projectile.z)
         transform.rotation.set(0, Math.atan2(projectile.direction.x, projectile.direction.z), 0)
         transform.scale.set(1, 1, projectile.maxHits > 1 ? 2 : 1)
         transform.updateMatrix()
@@ -102,7 +102,7 @@ export function CombatVisuals({ simulation }: { simulation: Simulation }) {
       <cylinderGeometry args={[PURSUER.radius, PURSUER.radius, 1.1, 6]} /><meshBasicMaterial />
     </instancedMesh>
     <instancedMesh ref={health} args={[undefined, undefined, MAX_ENEMIES]} frustumCulled={false}>
-      <planeGeometry args={[0.85, 0.07]} /><meshBasicMaterial color="#ffa692" />
+      <planeGeometry args={[0.85, 0.07]} /><meshBasicMaterial color="#ffa692" side={DoubleSide} />
     </instancedMesh>
     <instancedMesh ref={bullets} args={[undefined, undefined, MAX_PROJECTILES]} frustumCulled={false}>
       <boxGeometry args={[0.07, 0.04, 0.3]} /><meshBasicMaterial color="#ffe6a6" />

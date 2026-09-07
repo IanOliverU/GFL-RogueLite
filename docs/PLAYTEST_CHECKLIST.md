@@ -180,6 +180,22 @@ One convincing fully 3D urban combat street corner, roughly 24–32 units across
 - [ ] Movement, dash, cover/projectile collision, enemy navigation, aiming, resize, pause, level-up, retry, and character switching all verified in the preview.
 - [ ] Captured: Angled gameplay overview with Sabrina; closer material/architecture detail; combat view with enemies and projectiles; the same scene in Classic; a Blender overview of the assembled scene. No Blender beauty render presented as runtime evidence.
 
+## M5 third-person experiment (Sabrina, Mosin-Nagant, Qiongjiu — experimental; M5 remains unaccepted)
+
+Launch: `npm run dev` + `?mode=thirdperson` (three modeled dolls). Click to enter pointer lock; WASD move, mouse look, hold Left Click to fire, Space dash, Escape pause.
+
+- [ ] Selection offers Sabrina, Mosin-Nagant and Qiongjiu; other dolls are absent from selection.
+- [ ] Click-to-enter locks the pointer; crosshair appears; movement follows keys and the camera orbits with the mouse.
+- [ ] Held Left Click fires Sabrina's weapon along the crosshair; released fire stops; shots never endorse through-cover targets.
+- [ ] Space dashes with displacement and cooldown; dash stops at covers/walls.
+- [ ] Each doll's locomotion plays while moving and idles otherwise; hurt flash, dash lean, and death fall read without obscuring enemies/gems/warnings.
+- [ ] Escape pauses and drops the lock; resume needs a deliberate click; focus loss pauses and clears fire/keys.
+- [ ] Level-up freezes the run, queues choices, and resumes cleanly after the last pick.
+- [ ] Death shows game over; retry restarts Sabrina fresh (kills/shots reset, no leftover state).
+- [ ] Walled enclosure and three covers block movement/dash/projectiles where the art says they should; decorative rocks/towers never collide by surprise.
+
+Automated evidence 2026-09-07 (software WebGL; human boxes above stay unchecked pending deeper checks): `tests/browser/thirdperson.spec.ts` 6/6 on the production build — three-doll selection, orbit/movement/manual-fire/pause coherence, Sabrina locomotion render, Mosin-Nagant + Qiongjiu model renders, dash displacement with framed camera and live aim target, devxp level-up drain with resume plus death-to-game-over with fresh retry; zero page errors throughout. Captures saved to ignored `test-results/`: `tp-selection.png`, `tp-sabrina-play.png`, `tp-sabrina-model.png`, `tp-mosin.png`, `tp-qiongjiu.png`, `tp-sabrina-dash.png`, `tp-sabrina-levelup.png`, `tp-sabrina-gameover.png` (saved for review; behavior verified via snapshot/dialog/status assertions). Director feedback 2026-09-07 (Ian): manually tested all three dolls in third-person — all work well so far, no new issues; animation and pointer-lock improvements remain pending. Unit evidence stays distinct: `npm run test` 131/131 (including `thirdPerson` 16/16) is simulation/math coverage, not browser integration. Remaining gaps: through-cover live-fire and wall-occlusion framing are unit-covered only; real-GPU timing, physical pointer-lock feel, zoom/DPR, other browsers, context recovery, and human feel still need Ian's manual pass.
+
 ## Director feedback template
 
 What I tried:

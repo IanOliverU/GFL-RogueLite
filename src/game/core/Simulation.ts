@@ -1,7 +1,9 @@
 import { movePlayer } from '../systems/movement'
 import { createWorld, type GroundPoint } from './world'
+import type { StageId } from '../data/arena'
 import type { CharacterId } from '../data/characters'
 import { updateAim } from '../systems/targeting'
+import { resolveThirdPersonTarget } from '../systems/thirdPersonAim'
 import { stepWeapon } from '../systems/weapons'
 import { stepProjectiles } from '../systems/projectiles'
 import { stepEnemies } from '../systems/enemies'
@@ -19,8 +21,13 @@ export type PauseReason = 'manual' | 'focus' | 'graphics'
 /** Owns gameplay state; no browser, React or Three.js dependencies. */
 export class Simulation {
   world = createWorld()
+  readonly stage: StageId
   readonly held = new Set<string>()
   pointer: { x: number; y: number } | null = null
+  /** Deliberate fire input for the third-person experiment (left mouse held). */
+  fireHeld = false
+  /** True in the third-person experiment: crosshair aim, manual fire. */
+  readonly thirdPerson: boolean
   private accumulator = 0
   private status: RunStatus = 'playing'
   pauseReason: PauseReason = 'manual'
@@ -29,8 +36,11 @@ export class Simulation {
   private dashRequested = false
   private clampResumeDelta = false
 
-  constructor(mode: 'playground' | 'combat' = 'playground') {
-    if (mode === 'combat') this.status = 'selection'
+  constructor(mode: 'playground' | 'combat' | 'thirdperson' = 'playground', stage: StageId = 'district') {
+    this.stage = stage
+    this.thirdPerson = mode === 'thirdperson'
+    this.world = createWorld('sabrina', false, stage)
+    if (mode === 'combat' || mode === 'thirdperson') this.status = 'selection'
   }
 
   getHud = () => this.hud
@@ -44,7 +54,7 @@ export class Simulation {
   }
 
   startRun(dollId: CharacterId, opts?: { bonusXp?: number }): void {
-    this.world = createWorld(dollId, true)
+    this.world = createWorld(dollId, true, this.stage)
     this.choiceVersion = 0
     this.clearInput()
     this.accumulator = 0
@@ -85,7 +95,7 @@ export class Simulation {
   }
 
   returnToSelection(): void {
-    this.world = createWorld(this.world.dollId)
+    this.world = createWorld(this.world.dollId, false, this.stage)
     this.choiceVersion = 0
     this.clearInput()
     this.accumulator = 0
@@ -106,6 +116,7 @@ export class Simulation {
   clearInput(): void {
     this.held.clear()
     this.pointer = null
+    this.fireHeld = false
     this.dashRequested = false
   }
 
@@ -139,20 +150,31 @@ export class Simulation {
     const yaw = cameraYaw
     if (this.clampResumeDelta) { delta = Math.min(delta, FIXED_STEP); this.clampResumeDelta = false }
     this.accumulator += Math.min(delta, FIXED_STEP * MAX_STEPS)
+    // Third-person crosshair targets resolve through the muzzle path so the
+    // authoritative direction never endorses shooting through nearby cover.
+    const sampleResolved = sampleAim
+      ? (player: GroundPoint) => {
+        const target = sampleAim(player)
+        return this.thirdPerson ? resolveThirdPersonTarget(this.world, target) : target
+      }
+      : undefined
     let steps = 0
     while (this.accumulator + 1e-10 >= FIXED_STEP && steps < MAX_STEPS) {
       const playerStart = { ...this.world.player }
-      if (this.dashRequested && sampleAim && this.pointer) updateAim(this.world, sampleAim(this.world.player))
+      const aimPresent = this.pointer !== null || this.thirdPerson
+      if (this.dashRequested && sampleResolved && aimPresent) updateAim(this.world, sampleResolved(this.world.player))
       const dashing = this.world.combat && stepDash(this.world, this.held, this.dashRequested, FIXED_STEP, yaw)
       this.dashRequested = false
       if (!dashing) movePlayer(this.world.player, this.held, FIXED_STEP, this.world.obstacles, yaw)
       // Renderer supplies projection only; simulation owns direction and firing order.
-      if (sampleAim && this.pointer) updateAim(this.world, sampleAim(this.world.player))
+      if (sampleResolved && aimPresent) updateAim(this.world, sampleResolved(this.world.player))
       if (this.world.combat) {
         stepEnemies(this.world, FIXED_STEP)
         if (this.world.health > 0) {
           stepPulse(this.world, FIXED_STEP)
-          stepWeapon(this.world, FIXED_STEP, this.pointer !== null)
+          // Third-person fires only while the fire button is deliberately held;
+          // legacy modes keep automatic range-gated fire while aimed.
+          stepWeapon(this.world, FIXED_STEP, this.thirdPerson ? this.fireHeld : this.pointer !== null)
           stepProjectiles(this.world, FIXED_STEP)
           stepGems(this.world, FIXED_STEP)
           stepRangedAttacks(this.world, FIXED_STEP)

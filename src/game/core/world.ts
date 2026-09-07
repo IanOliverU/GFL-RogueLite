@@ -1,7 +1,7 @@
 import { CHARACTERS, type CharacterId } from '../data/characters'
 import { WEAPONS } from '../data/weapons'
-import { COMBAT_OBSTACLES, ENEMY_DEFINITIONS, RANGED, type EnemyKind, type Obstacle } from '../data/arena'
-import { FIRST_SPAWN_DELAY } from '../data/pressure'
+import { COMBAT_OBSTACLES, ENEMY_DEFINITIONS, RANGED, THIRDPERSON_OBSTACLES, type EnemyKind, type Obstacle, type StageId } from '../data/arena'
+import { FIRST_SPAWN_DELAY, SPAWN_POINTS, THIRDPERSON_SPAWN_POINTS, type SpawnPoint } from '../data/pressure'
 import { PULSE_SKILL } from '../data/progression'
 
 export interface GroundPoint { x: number; z: number }
@@ -37,6 +37,8 @@ export interface World {
   enemies: Enemy[]
   projectiles: Projectile[]
   obstacles: readonly Obstacle[]
+  /** Spawn ring; the default district ring, or the compact TP ring. */
+  spawnPoints: readonly SpawnPoint[]
   spawnTimer: number
   spawnIndex: number
   nextId: number
@@ -73,12 +75,17 @@ export const ARENA_HALF_SIZE = MAP_HALF_WIDTH
 export const PLAYER_RADIUS = 0.4
 export const PLAYER_SPEED = 6
 
-export function createWorld(dollId: CharacterId = 'sabrina', combat = false): World {
+export function createWorld(dollId: CharacterId = 'sabrina', combat = false, stage: StageId = 'district'): World {
+  const obstacles: readonly Obstacle[] = !combat
+    ? []
+    : stage === 'thirdperson' ? THIRDPERSON_OBSTACLES
+      : COMBAT_OBSTACLES
+  const spawnPoints = stage === 'thirdperson' ? THIRDPERSON_SPAWN_POINTS : SPAWN_POINTS
   return {
     player: { x: 0, z: 0 }, aimDirection: { x: 0, z: -1 }, aimTarget: null, elapsed: 0,
     dollId, combat, health: CHARACTERS[dollId].maxHealth, maxHealth: CHARACTERS[dollId].maxHealth, hurtRemaining: 0,
     weapon: { ammo: WEAPONS[CHARACTERS[dollId].weaponId].magazine, cooldown: 0, reloadRemaining: 0, burstRemaining: 0 },
-    enemies: combat ? [createEnemy(1, 0, -4)] : [], projectiles: [], obstacles: combat ? COMBAT_OBSTACLES : [],
+    enemies: combat ? [createEnemy(1, 0, -4)] : [], projectiles: [], obstacles, spawnPoints,
     spawnTimer: FIRST_SPAWN_DELAY, spawnIndex: 0, nextId: 2, shots: 0, hits: 0, kills: 0, damageDealt: 0, reloads: 0,
     dash: { remaining: 0, cooldown: 0, direction: { x: 0, z: -1 }, origin: { x: 0, z: 0 } },
     dashes: 0, hostileProjectiles: [], enemyShots: 0, dodgedShots: 0, spawnCount: 0,
