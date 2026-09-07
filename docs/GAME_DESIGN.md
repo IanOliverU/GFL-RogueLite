@@ -2,7 +2,9 @@
 
 ## Product and pillars
 
-An independent GFL-inspired, single-player browser survivor roguelite. Target keyboard/mouse on desktop first. High-quality 2D-in-3D visual direction, readable combat, independent movement/aiming, signature guns, and meaningful upgrades. No promise of matching the production scale of Octopath Traveler.
+An independent GFL-inspired, single-player browser survivor roguelite. Target keyboard/mouse on desktop first. Fully 3D anime characters in grounded urban/industrial environments, readable combat, independent movement/aiming, signature guns, and meaningful upgrades. No promise of matching the production scale of Octopath Traveler.
+
+Current visual direction (2026-09-07 reconciliation; overrides older 2D-in-3D/HD-2D notes in this repo): detailed anime characters at believable scale (Sabrina at 2.15 m display height) in a grounded, fully 3D urban combat space viewed through the Angled camera (Classic preserved as a selectable fallback). The street reference guides spatial composition, scale, material quality, and lighting; local GFL2 screenshots guide character compatibility only. Create an original composition; do not embed screenshots into runtime. The earlier "2D-in-3D / HD-2D" phrasing below is historical and must not guide new art.
 
 ## Controls and targeting
 
@@ -17,7 +19,7 @@ An independent GFL-inspired, single-player browser survivor roguelite. Target ke
 
 Auto-fire never redirects a shot to an enemy. Range activation is a convenience gate, not aim assistance; shots can miss, hit cover, or fire away from a nearby enemy. If this feels surprising in playtesting, compare continuous automatic firing as a documented tuning change. A hold-to-fire setting is deferred. Browser focus loss pauses and clears input; no background damage or catch-up bursts on resume.
 
-Use one fixed elevated orthographic camera. Initial gameplay has no elevation, jumping, stairs, or free camera rotation. Foreground decoration must not hide hazards. Dash timing, cooldown, and a short invulnerability window are tunable prototype values. The visual trail must match its actual invulnerability interval; dash cannot cross solid walls.
+Use selectable Classic/Angled elevated orthographic cameras (Angled is the default; both are accepted). Initial gameplay has no elevation, jumping, stairs, or free camera rotation. Foreground decoration must not hide hazards. Dash timing, cooldown, and a short invulnerability window are tunable prototype values. The visual trail must match its actual invulnerability interval; dash cannot cross solid walls. (The older "one fixed camera" wording is superseded by the accepted two-preset setup; movement stays screen-relative and aiming stays cursor-ground projected for either preset.)
 
 ## Run structure
 
@@ -31,7 +33,7 @@ Level-ups offer three eligible choices: gun rank, doll skill upgrade, or equipme
 
 When no ranked upgrade is eligible, offer a defined fallback such as healing (only below max health) or score currency. Cap rank values and prevent duplicate incompatible choices. Queue multiple level-ups without advancing simulation while the upgrade menu is open.
 
-M4 as implemented (2026-09-06, evidence in `docs/MILESTONES.md`): XP gems (pursuer 2, ranged 4), level need 3 + (level−1) × 2 up to level 20, modal choice of 3 distinct eligible upgrades with carry-forward and queuing, gun ranks 1–5 (+15% damage each), three equipment items at up to rank 3 with 3 slots, Sabrina's automatic 6-second knockback pulse, and the single Shockwave Barrage evolution (Sabrina gun rank 5 + Plated Vest rank 3; every 4th volley empowered). The earlier elite-enemy reward proposal is deferred — outside the approved M4 scope. Dev-only `?devxp=N` start bonus is not production progression.
+M4 as implemented (2026-09-06, evidence in `docs/MILESTONES.md`; current pacing formula verified against `src/game/data/progression.ts`): XP gems (pursuer 2, ranged 4), level need 5 + (level−1) × 3 up to level 20, modal choice of 3 distinct eligible upgrades with carry-forward and queuing, gun ranks 1–5 (+15% damage each), three equipment items at up to rank 3 with 3 slots, Sabrina's automatic 6-second knockback pulse, and the single Shockwave Barrage evolution (Sabrina gun rank 5 + Plated Vest rank 3; every 4th volley empowered). The earlier elite-enemy reward proposal is deferred — outside the approved M4 scope. Dev-only `?devxp=N` start bonus is not production progression.
 
 ## Selected roster and proposed adaptations
 
@@ -52,7 +54,7 @@ Units are gameplay units and seconds; all values are provisional. A shotgun voll
 
 The established firing rule remains: a live enemy within the weapon's range enables automatic firing along cursor aim, with no target snapping and no line-of-sight requirement for activation. Cover still stops the resulting projectiles, including sniper rounds. The cursor must have entered/moved over the canvas; leaving it or opening UI clears aim input. Near-zero targets retain the last valid direction.
 
-One pursuer type has 40 HP, speed 1.8, radius 0.45 and 10 contact damage with a shared player hurt interval of 0.7 seconds. One enemy starts four units ahead; another is attempted every two seconds at predefined perimeter points at least four units from the player, up to eight alive. This is a bounded combat test encounter, not the M3/M4 wave/progression system. One solid cover block affects movement, pursuit and projectile collision. Knockback refreshes a directional velocity and decays exponentially (10/s); pellet impulses do not sum. Projectiles use swept hits, stop at cover/perimeter/range, and track already-hit enemy IDs. No XP, skills, ultimates, evolutions, dash, ranged enemies or polished animations in this scope.
+One pursuer type has 40 HP, speed 1.8, radius 0.45 and 10 contact damage with a shared player hurt interval of 0.7 seconds. One enemy starts four units ahead; another is attempted every two seconds at predefined perimeter points at least four units from the player, up to eight alive. This is a bounded combat test encounter, not the M3/M4 wave/progression system. (Historical M2 test encounter — superseded by M3 dash/ranged pressure, M4 XP/upgrades/evolution, and the M5 stage work. Do not use its single-block arena as the layout baseline.) One solid cover block affects movement, pursuit and projectile collision. Knockback refreshes a directional velocity and decays exponentially (10/s); pellet impulses do not sum. Projectiles use swept hits, stop at cover/perimeter/range, and track already-hit enemy IDs. No XP, skills, ultimates, evolutions, dash, ranged enemies or polished animations in this scope. (Historical M2 scope note — later milestones added those systems.)
 
 ### Later full-kit proposals (not M2)
 
@@ -69,11 +71,13 @@ These six are our selected roster, not a verified complete official release rost
 
 Each eventual doll also has an innate trait. Avoid support triggers that require an allied doll when none exists in solo play. Ultimate charge and proc generation must have explicit, bounded rules.
 
-## Later Sabrina progression proposal
+## Later Sabrina progression proposal (historical — M4 implemented a different recipe)
 
 Shotgun cone aimed at cursor; one volley uses multiple short-lived projectiles. Proposed ranks: 1 base cone, 2 damage, 3 pellet count, 4 one-enemy piercing, 5 fire interval, 6 range, 7 periodic empowered volley. Values are tunable, not established balance. Automatic knockback pulse is the first skill.
 
 Proposed evolution recipe: shotgun rank 7 + compatible reactive-armor equipment rank 3 + eligible elite reward. Evolution preserves the gun identity and adds shockwaves to empowered volleys. Recipe is visible in UI. Eligibility is checked when claiming a reward; earlier rewards cannot retroactively become evolutions unless deliberately redesigned. The wave/XP schedule must permit a tester to reach the recipe within the prototype run; provide a development-only shortcut to test it separately. Elite evolution opportunities must exist after upgrades can reasonably be completed.
+
+As implemented (M4, authoritative over the proposal above): Shockwave Barrage requires Sabrina gun rank 5 + Plated Vest rank 3, with no elite enemy; every 4th volley is empowered. Evolution refinement is unresolved and awaits Ian's clarification.
 
 ## Enemies and scope
 

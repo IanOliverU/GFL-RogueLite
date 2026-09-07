@@ -6,8 +6,8 @@
 | --- | --- |
 | Vite + TypeScript | Local tooling, typed application and simulation |
 | React | Menus, settings, results, upgrade interface |
-| React Three Fiber + Three.js | 3D scene and rendering |
-| Blender + Blender MCP | Optional environment creation and asset processing |
+| React Three Fiber + Three.js | 3D scene and rendering (real-time 3D characters and environments; no sprite pipeline) |
+| Blender + Blender MCP | Environment and character asset preparation. Live MCP supports ordinary scene inspection and modeling; background Blender isolates audits and scripts that reset scenes. Current-session MCP availability is unverified/unavailable; prior connectivity does not establish current connectivity. Do not change MCP configuration in this task. |
 | Typed data definitions | Dolls, guns, skills, enemies, waves, upgrades |
 | Browser storage | Small versioned settings and unlock saves |
 
@@ -32,7 +32,7 @@ Create folders when used, not as empty scaffolding for the entire release.
 
 M2 implementation: typed basic doll/weapon/enemy/cover definitions live in `src/game/data/`. Shared `weapons`, `projectiles`, `enemies` and `collision` systems operate on the core world. Simulation accepts a renderer-supplied floor-projection callback after movement, before combat, so shots use the current camera and cursor even during follow. Rendering synchronizes fixed-capacity enemy/projectile batches after simulation. React receives lifecycle and changed HUD values (HP/ammo/reload/kill/shot counters), not per-projectile updates. Selection and game-over screens own screen UI; retry or switching creates a fresh authoritative world. M1 playground remains an optional no-combat route.
 
-XZ is the gameplay plane at Y=0, with Y up. Character position and collision are anchored at the feet. Sprites are upright planes with a consistent bottom-center pivot. Camera yaw/tilt are fixed; translation may follow the player. Do not reorient sprites toward each translated camera position, which can cause jitter; align them consistently with the fixed view direction.
+XZ is the gameplay plane at Y=0, with Y up. Character position and collision are anchored at the feet. Characters are real-time 3D models (Sabrina at 2.15 m display height; no sprite pipeline, no engine migration for the preview). Camera presets are selectable (Classic/Angled) with fixed yaw/tilt per preset; translation may follow the player. Do not reorient character models toward each translated camera position in a way that causes jitter; yaw them consistently with cursor aim and align them with the fixed view direction.
 
 Convert pointer coordinates relative to the actual canvas rectangle into normalized device coordinates. Project through the current camera and intersect the gameplay plane. Normalize target-minus-player in XZ. Handle a missing intersection or near-zero vector by retaining the last valid direction. Apply that direction to all aiming presentation and projectile initialization. Recompute after camera movement and resize even when the mouse is stationary. UI pointer events do not reach combat.
 
@@ -56,6 +56,6 @@ Small saves can use localStorage behind an adapter: schema version, settings and
 
 ## Browser performance and delivery
 
-Provisional target: 60 FPS at 1080p on a director-named reference desktop. This is a goal, not a measured guarantee. Record hardware, browser, resolution, DPR, enemy/projectile counts and frame times. Cap rendering DPR and offer reduced effects/shadows. Start with a few lights, blob shadows for characters, reusable textures/materials and modest bloom. Avoid dynamic lights for every bullet and full-scene blur that obscures combat.
+Provisional target: 60 FPS at 1080p on a director-named reference desktop. This is a goal, not a measured guarantee. Record hardware, browser, resolution, DPR, enemy/projectile counts and frame times. Cap rendering DPR and offer reduced effects/shadows. Start with a few lights, blob shadows for characters, reusable textures/materials and modest bloom. Avoid dynamic lights for every bullet and full-scene blur that obscures combat. Do not rely on heavy bloom, chromatic aberration, darkness, or fog to conceal unfinished assets. Use restrained lighting that preserves enemy-warning, projectile, gem, and HUD readability.
 
-Load only the selected doll and map; retain a small initial payload. Start audio after a user gesture. Handle resize, focus loss and graphics-context loss with a recoverable message. Produce static deployable assets; deployment is a separate requested action, not implied by creating a successful build.
+Load only the selected doll and map; retain a small initial payload. Preserve the current stage as a selectable development fallback and add the urban preview as an isolated stage option (development URL option is sufficient); do not duplicate the combat engine. Start audio after a user gesture. Handle resize, focus loss and graphics-context loss with a recoverable message. Produce static deployable assets; deployment is a separate requested action, not implied by creating a successful build.

@@ -1,14 +1,16 @@
 # Decisions, assumptions and sources
 
-## Agreed direction
+## Agreed direction (as reconciled 2026-09-07; older 2D/sprite notes below are historical)
 
 - Ian acts as director/producer and playtester.
 - Browser-first solo game; new local folder is the intended working location.
 - GFL-inspired fan-game identity with the six selected dolls: Sabrina, Qiongjiu, Tololo, Mosin-Nagant, Peritya, Vepley.
-- 2D characters in stylized 3D environments; fixed elevated view.
+- Fully 3D anime characters in grounded urban/industrial environments; fixed elevated view with selectable Classic/Angled cameras (Angled default; both accepted).
+- Street reference guides spatial composition, scale, material quality, and lighting; local GFL2 screenshots guide character compatibility only. Original composition; no screenshots embedded at runtime.
 - Mouse-cursor aiming, independent from WASD movement.
 - Guns retain doll identity while upgrades/evolutions change behavior.
 - AI-assisted implementation and art production with human review.
+- Actual state: M0–M3 accepted and committed; M4 baseline is accepted for progression to M5 (evolution refinement deferred pending clarification); M5 is the single active milestone. Sabrina is integrated as a real-time 3D model (2.15 m, procedural feedback only; skeletal animation and weapon presentation are separate follow-ups; no sprite pipeline). Previous full-map environment appearance is rejected and retained as a development fallback only. Next authorized task: one convincing urban combat street-corner preview with explicit permission to redesign its layout and matching collision. Placeholders never count as finished M5 art. Do not mark M5 accepted without Ian's visual review.
 
 ## Baseline implementation choices
 
@@ -46,7 +48,7 @@ These are practical defaults from the planning discussion, adjustable through pl
 
 ### M4 progression baseline — 2026-09-06
 
-- Approved M4 subset implements XP/levels/choices, gun ranks 1–5 (+15% damage each), three rank-3 equipment items (Plated Vest, Drum Magazine, Trigger Unit; at most 3 distinct), one Sabrina evolution (Shockwave Barrage: gun rank 5 + Plated Vest rank 3; every 4th volley ×2 damage/knockback +4 pellets), and Sabrina's automatic 6-second knockback pulse. XP: pursuer 2, ranged 4; level need 3 + (level−1) × 2, cap 20. All provisional; data in `src/game/data/progression.ts` is authoritative at runtime.
+- Approved M4 subset implements XP/levels/choices, gun ranks 1–5 (+15% damage each), three rank-3 equipment items (Plated Vest, Drum Magazine, Trigger Unit; at most 3 distinct), one Sabrina evolution (Shockwave Barrage: gun rank 5 + Plated Vest rank 3; every 4th volley ×2 damage/knockback +4 pellets), and Sabrina's automatic 6-second knockback pulse. XP: pursuer 2, ranged 4; level need 3 + (level−1) × 2, cap 20 (historical M4 baseline formula as approved at that time; the later pacing update superseded the level need with 5 + (level−1) × 3 — see the survival-layout baseline below and `src/game/data/progression.ts`). All provisional; data in `src/game/data/progression.ts` is authoritative at runtime.
 - No elite enemy in M4: the design doc's elite evolution opportunity is deferred because Ian's approved M4 scope lists the evolution without elites. Evolution requirements stay visible on the level-up screen as a progress line. A dev-only `?devxp=N` URL bonus exists for testing the evolution quickly; it applies only on selection-screen start, never on retry, and is not production progression.
 - One `levelup` run state freezes the fixed-step simulation; the modal dialog offers exactly 3 distinct eligible choices with gun/evolution priority and deterministic equipment rotation; Field Rations (heal 30) is the always-eligible fallback so exhausted pools cannot trap the player. Upgrades derive stats per volley and never reset loaded ammo, cooldowns, bursts or reloads.
 - Browser choice automation must settle (~400 ms) after each applied pick before deciding the next click; deciding against the pre-commit DOM loses clicks. Recorded after the M4 evolution spec stalled twice on this race with no gameplay defect.
@@ -69,17 +71,17 @@ These are practical defaults from the planning discussion, adjustable through pl
 
 ### Remaining nonblocking items
 
-- Final title, visual reference sheet and sprite source/permission.
+- Final title, visual reference sheet and 3D-model source/permission (sprite sourcing is superseded — no sprite pipeline).
 - Exact skill translations and canonical weapon/alias metadata.
 - Reference desktop hardware and measured performance budget.
 - Camera framing, dodge timings, enemy counts and progression tuning.
 - Final audio sources and distribution host.
 
-Use placeholders and record provisional values. Ask focused questions only when a decision materially blocks the active task. Do not invent approval or canonical facts to close an open item.
+Use placeholders and record provisional values. Ask focused questions only when a decision materially blocks the active task. Do not invent approval or canonical facts to close an open item. Placeholders are development fallbacks only and never count as finished M5 environment or character art.
 
-## Scope changes require a recorded design update
+## Scope changes require a recorded design update (updated 2026-09-07)
 
-Connected-room dungeon structure, fully 3D characters, mobile support, multiplayer, accounts, cloud saves, monetization, or replacing the engine are beyond this baseline. This is a scope record, not a requirement for repeated approval of routine reversible fixes.
+Connected-room dungeon structure, mobile support, multiplayer, accounts, cloud saves, monetization, or replacing the engine are beyond this baseline. Fully 3D characters are no longer beyond baseline for Sabrina (integrated as a real-time model with procedural feedback; skeletal animation and weapon presentation are separate follow-ups; the other five dolls remain placeholders). The authorized urban preview explicitly permits redesigning its preview layout and matching collision footprints. This is a scope record, not a requirement for repeated approval of routine reversible fixes.
 
 ## Reference sources used during planning
 
@@ -87,7 +89,7 @@ These are reference links from the planning conversation, not a fresh audit of p
 
 - [React Three Fiber](https://github.com/pmndrs/react-three-fiber): React renderer for Three.js; R3F and Three.js are used together.
 - [Three.js documentation](https://threejs.org/docs/): renderer and graphics APIs.
-- [Octopath developer interview](https://www.unrealengine.com/spotlights/octopath-traveler-s-hd-2d-art-style-and-story-make-for-a-jrpg-dream-come-true): 2D characters combined with 3D environments.
+- [Octopath developer interview](https://www.unrealengine.com/spotlights/octopath-traveler-s-hd-2d-art-style-and-story-make-for-a-jrpg-dream-come-true): historical HD-2D reference (superseded by the fully-3D direction; preserved as planning history, not a current art target).
 - [Enter the Gungeon](https://enterthegungeon.com/): action-shooter inspiration.
 - [HoloCure](https://store.steampowered.com/app/2420510/HoloCure__Save_the_Fans/): character builds and survivor progression inspiration.
 - [Vampire Survivors](https://store.steampowered.com/app/1794680/Vampire_Survivors/): escalating survival progression inspiration.

@@ -60,9 +60,9 @@ Provisional tuning: dash 4 units / 0.20 s, invulnerable only while dashing, 1.20
 - [ ] Change character returns to selection; another doll starts clean.
 - [ ] TIME (MM:SS) advances during play and freezes on pause, focus loss and game over.
 
-## M4 progression (director results 2026-09-06; acceptance pending)
+## M4 progression (baseline accepted for progression to M5; evolution refinement deferred pending clarification)
 
-As implemented: pursuer gems 2 XP, ranged gems 4 XP; need 3 + (level−1) × 2 to level 20; gun ranks 1–5 (+15% damage); Plated Vest / Drum Magazine / Trigger Unit at 3 ranks with 3 gear slots; Sabrina auto-pulse every 6 s; Shockwave Barrage evolution needs Sabrina gun 5 + Vest 3. No elite enemy in M4 (deferred).
+As implemented: pursuer gems 2 XP, ranged gems 4 XP; need 5 + (level−1) × 3 to level 20 (current pacing formula, verified against `src/game/data/progression.ts`); gun ranks 1–5 (+15% damage); Plated Vest / Drum Magazine / Trigger Unit at 3 ranks with 3 gear slots; Sabrina auto-pulse every 6 s; Shockwave Barrage evolution needs Sabrina gun 5 + Vest 3. No elite enemy in M4 (deferred).
 
 - [x] Kills drop one gem each; walking over a gem grants its XP once and fills the bar. (Ian: good)
 - [x] Excess XP carries; several queued levels resolve one choice screen after another. (Ian: good)
@@ -71,8 +71,8 @@ As implemented: pursuer gems 2 XP, ranged gems 4 XP; need 3 + (level−1) × 2 t
 - [ ] Evolution appears only at gun 5 + Vest 3 (Sabrina), empowers every 4th volley, and shows the EVO tag. (Ian: works, refinement pending clarification — not redesigned yet)
 - [x] Alt-Tab during a choice leaves the upgrade screen intact with nothing advanced. (covered by Ian's level-up flow pass)
 - [x] Restart, retry and doll-switch reset LV, XP, gems, ranks, gear, evolution and pulse state. (Ian: good)
-- [ ] XP bar sits in its own full-width row below the HUD info at desktop and narrow widths. (fix implemented + verified, pending Ian's review)
-- [ ] Pause menu, timer, dash, warnings, separation and pressure still behave as accepted.
+- [x] XP bar sits in its own full-width row below the HUD info at desktop and narrow widths. (Ian: accepted)
+- [ ] Pause menu, timer, dash, warnings, separation and pressure still behave as accepted. (Left unchecked: no matching regression evidence recorded; do not auto-check.)
 
 ## M4 follow-up: survival layout, arena and pacing (pending Ian)
 
@@ -105,7 +105,9 @@ Provisional palette: #121316 bg, #1E2024 cards, #3B3E44 borders, #FF7800 accent,
 
 ## M5/M6 presentation and delivery
 
-### M5 bounded-environment blockout (acceptance pending)
+Current direction (2026-09-07 reconciliation): fully 3D anime characters in grounded urban/industrial environments (street reference for composition, GFL2 screenshots for character compatibility only). Sabrina is integrated with procedural feedback only; skeletal animation and weapon presentation are separate follow-ups with no sprite pipeline. Both Classic and Angled cameras are accepted (Angled default). The previous full-map environment appearance is rejected and retained as a fallback only; placeholders never count as finished M5 art. The acceptance path is the urban-preview checklist below.
+
+### M5 bounded-environment blockout (historical — appearance rejected, fallback only)
 
 - [ ] From the centre, walk north, south, east and west to the perimeter: new terrain/landmarks should reveal over several camera views while the doll stays readable.
 - [ ] Inspect the north-west checkpoint (about X -18 / Z -16): Blender GLB low concrete cover blocks movement/projectiles; fence, crates and barrels do not create surprise collision.
@@ -120,7 +122,19 @@ M5 composition evidence (same camera before/after): `m5-checkpoint-before.png` s
 
 M5 task-2 map tour (software WebGL): walked staging → checkpoint → west works (+W boundary) → storage → south field → SE corner → north boundary at full HP, zero page errors (`m5-area-*.png`). Ian should spot-check: staging openness, storage yard readability from the road, south-field L-corner, west works silhouette, perimeter edges, and confirm far areas stay navigable with readable combat. Boxes stay unchecked pending Ian.
 
-## M5 task-3 Sabrina visual pipeline (pending Ian's art-direction verdict)
+### M5 industrial-district one-shot (historical — appearance rejected 2026-09-07, fallback only)
+
+- [ ] At spawn, the pale staging slab, TRANSIT junction and three road directions read immediately; asphalt, gravel and concrete remain distinct behind combat.
+- [ ] At X −15 / Z −15, the inspection kiosk, paired 04 posts, barrier line, supply equipment and CHECKPOINT 04 apron form the strongest landmark without closing the approach.
+- [ ] East freight, west works and south service each read from ground treatment and the matching cover/utility landmark; road shoulders connect them to the centre.
+- [ ] Every large building/container remains beyond the hard boundary; every in-bounds solid-looking prop agrees with one of the ten covers. Dash and bullets stop where the art says they should.
+- [ ] Sabrina, enemies, green gems, gold aim, red warning lines and orange hostile shots stay clear in both Angled and Classic under the new key/fill balance.
+- [ ] Walk the far Angled views and judge the preserved 45% camera follow: at extreme coordinates the doll can leave frame. This existed before the art pass and was not changed because the task froze camera framing.
+- [ ] Switch camera, resize, pause/resume, level up, retry and change doll after visiting a district; confirm fresh input and clean asset loading.
+
+Automated visual evidence is kept under ignored `.tmp/m5-art-pass/`: matching `before/` and `after/` captures, `capture-evidence.json`, the standalone GLB audit and `blender-overview.png`. These are software-WebGL captures; a real-GPU/human readability and feel pass remains required.
+
+## M5 task-3 Sabrina visual pipeline (integrated with procedural feedback only; skeletal animation and weapon presentation remain separate follow-ups; no sprite pipeline)
 
 Proven for Sabrina only; other five dolls still use planes. Automated evidence (software WebGL): full Sabrina lifecycle browser test passed; `sabrina-aim-north/firing-1/firing-2/dash/hit/fallen/retry/fallback.png` inspected.
 
@@ -132,19 +146,19 @@ Proven for Sabrina only; other five dolls still use planes. Automated evidence (
 - [ ] Hit feedback never obscures enemies, gems, or warnings.
 - [ ] Missing-asset fallback (planes) acceptable for clean checkouts.
 
-## M5 camera experiment (pending Ian's verdict; defaults to Angled)
+## M5 camera experiment (accepted by Ian; defaults to Angled, Classic preserved)
 
-Director feedback: Sabrina's import is satisfactory but doesn't fit the environment yet; movement feels clunky without walking animation. Evaluate the Angled preset against Classic before further art changes. Switch any time in the pause menu (Camera group); the run is preserved. To restore Classic project-wide, set `DEFAULT_CAMERA_PRESET` to `'classic'` in `src/game/data/camera.ts`.
+Director feedback: Sabrina's import is satisfactory but doesn't fit the environment yet; movement feels clunky without walking animation. Both Classic and Angled cameras are accepted (Angled default). Skeletal animation and weapon presentation remain separate follow-ups. Switch any time in the pause menu (Camera group); the run is preserved. To restore Classic project-wide, set `DEFAULT_CAMERA_PRESET` to `'classic'` in `src/game/data/camera.ts`.
 
 - [ ] Angled framing: Sabrina's silhouette/clothing readable, with room to see enemies and warnings.
 - [ ] W moves toward screen-up and D toward screen-right in both presets; diagonals feel equal.
 - [ ] Aim stays glued to the cursor while moving and after resize; dash goes where-input-points.
 - [ ] Pause-menu switching keeps TIME/HP/enemies; no stray movement or shots after switching.
 - [ ] Map edges/corners show no clipping or missing terrain in Angled.
-- [ ] Verdict: keep Angled, keep Classic, or request tuning (yaw/elevation/closeness values).
+- [x] Verdict: both Classic and Angled accepted; Angled is the default. Further tuning only on Ian's direction. (Selector acceptance does not establish correct visibility at all map extremes; camera-edge visibility remains an open issue until verified — see the unchecked map-edges box above.)
 
 - [ ] At game scale, bullets and warnings stand out from lighting/effects.
-- [ ] Sprite edges, feet, facings and muzzle placement look coherent.
+- [ ] 3D grounding, intersections, shadows, feet, facings and muzzle placement look coherent (no sprite-pipeline checks; placeholders never count as finished art).
 - [ ] Audio starts after a user gesture and responds to volume settings.
 - [ ] Build/typecheck/lint and meaningful tests pass.
 - [ ] Production build is tested, not only development mode.
@@ -152,6 +166,19 @@ Director feedback: Sabrina's import is satisfactory but doesn't fit the environm
 - [ ] Corrupt/blocked storage does not prevent play.
 - [ ] Quality options are usable; reference device and crowd counts recorded.
 - [ ] Actual browser coverage is recorded; untested mobile is not called supported.
+
+## M5 urban-preview street corner (the acceptance path — not started)
+
+One convincing fully 3D urban combat street corner, roughly 24–32 units across (one to two Angled-camera screens), featuring the existing Sabrina model. The current industrial stage is preserved as a selectable development fallback; the preview is an isolated stage option (development URL option is sufficient). Layout/collision redesign is explicitly permitted for the preview area. Gameplay is preserved (Classic/Angled selection and framing, screen-relative controls, cursor-ground aiming, movement/dash/weapons/damage/XP/upgrades/evolution/spawn tuning, pause/focus, level-up freezes, retry, doll switching). No sprite pipeline, engine migration, state-management replacement, or new combat mechanics. No heavy bloom, chromatic aberration, darkness, or fog to conceal unfinished assets.
+
+- [ ] Asphalt street corner/short intersection reads with sidewalks and convincing curb edges at Sabrina's scale (2.15 m).
+- [ ] Two substantial building facades show depth: recessed doors/windows, structural divisions, roof/parapet details; plus a service entrance/small loading recess.
+- [ ] Cover reads and blocks consistently: parked utility vehicle, concrete barriers; traversable ground stays compatible with flat-ground simulation.
+- [ ] Secondary details are purposeful and restrained: drains, utility boxes, bollards, signage, grouped service equipment; limited wear/dirt; cool neutral architecture with readable pavement and limited warm accents.
+- [ ] Composition keeps open maneuvering space with connected routes around cover; no tall foreground structures permanently hide combat.
+- [ ] Materials distinguish asphalt, concrete, painted metal, glass, and masonry; no oversized repetition or full-coverage noise.
+- [ ] Movement, dash, cover/projectile collision, enemy navigation, aiming, resize, pause, level-up, retry, and character switching all verified in the preview.
+- [ ] Captured: Angled gameplay overview with Sabrina; closer material/architecture detail; combat view with enemies and projectiles; the same scene in Classic; a Blender overview of the assembled scene. No Blender beauty render presented as runtime evidence.
 
 ## Director feedback template
 

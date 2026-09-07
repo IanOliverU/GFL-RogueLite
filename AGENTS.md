@@ -4,9 +4,22 @@
 
 Build the browser game described in `docs/GAME_DESIGN.md`. Read this file, README, technical plan, decisions, and current milestone before editing. Ian is director/producer. His current instructions override these project defaults. Preserve unrelated files and inspect any existing repository before scaffolding.
 
-## First task
+### Current direction (2026-09-07 reconciliation; overrides older visual notes in this repo)
 
-Complete M0 and M1 using `START_HERE.md`. Do not implement the full roster or later systems during the initial task. Routine implementation decisions within the active scope do not require repeated permission. When the authorized task is complete, report the playable result and the next milestone. Do not silently expand scope.
+- Fully 3D anime characters in grounded urban/industrial environments, viewed through the existing Angled camera (Classic preserved as a selectable fallback).
+- The attached street reference guides spatial composition, scale, material quality, and lighting; local GFL2 screenshots guide character compatibility only. Create an original composition; do not embed screenshots into runtime.
+- Sabrina is integrated as a real-time 3D model at 2.15 m display height with procedural feedback only; skeletal animation and weapon presentation remain separate follow-ups. No sprite pipeline. The other five dolls remain placeholders.
+- The previous full-map environment pass was visually unsatisfactory (repeated primitive props, large flat surfaces, ground markings did not produce the intended appearance). It is retained as a development fallback only and is not the acceptance path.
+
+### Actual state (2026-09-07)
+
+- M0–M3 accepted and committed. M4 baseline is accepted for progression to M5; evolution refinement is deferred pending clarification. M5 is the single active milestone.
+- Both Classic and Angled cameras are accepted; Angled is the default.
+- Environment appearance is rejected; character animation is unfinished. Do not mark M5 accepted without Ian's visual review.
+
+## First task (historical — do not follow as an active instruction)
+
+The original M0/M1 kickoff in `START_HERE.md` is preserved as history only. Do not start new work at M0/M1, re-scaffold, or limit scope to Sabrina-only/placeholder-only baselines. The next authorized task is defined in `docs/MILESTONES.md` (one convincing urban combat street-corner preview, with explicit permission to redesign its layout and matching collision). Routine implementation decisions within that authorized scope do not require repeated permission. When the authorized task is complete, report the playable result and the next milestone. Do not silently expand scope.
 
 ## Architecture
 
@@ -24,11 +37,11 @@ Complete M0 and M1 using `START_HERE.md`. Do not implement the full roster or la
 
 Inspect first. Create a small implementation plan. Deliver a working increment, verify relevant behavior, and update milestone evidence. Keep changes focused; do not rewrite the whole application to add one mechanic. Install compatible stable dependency versions after checking current official documentation; pin through the lockfile. Never invent an installed tool, Blender connection, successful command, deployed URL, asset permission, or completed playtest.
 
-If Blender MCP is unavailable, continue with procedural geometry and clearly identified placeholders. Do not block movement/combat on polished art. Use existing integration configuration when present; do not overwrite credentials or unrelated MCP settings.
+Live Blender MCP supports ordinary scene inspection and modeling; background Blender isolates audits and scripts that reset scenes. Current-session MCP availability is unverified/unavailable; prior connectivity does not establish current connectivity. If Blender MCP is unavailable in the session, continue with procedural geometry and clearly identified placeholders. Do not block movement/combat on polished art. Placeholders are development fallbacks only and never count as finished M5 art. Use existing integration configuration when present; do not change MCP configuration in this task and do not overwrite credentials or unrelated MCP settings. Missing repository MCP configuration does not prove that global/client configuration is absent.
 
 ## Assets and design integrity
 
-Official character identities are inspiration; our skill names, evolution recipes, and balancing are proposed adaptations unless separately verified. Six selected dolls are our initial roster, not a claim about a complete official launch roster. Track actual asset source and permission in the manifest. Use placeholders while permission is unresolved; do not download and redistribute official assets based only on the game being free. Never label AI-generated art as official.
+Official character identities are inspiration; our skill names, evolution recipes, and balancing are proposed adaptations unless separately verified. Six selected dolls are our initial roster, not a claim about a complete official launch roster. Track actual asset source and permission in the manifest. Use placeholders while permission is unresolved; do not download and redistribute official assets based only on the game being free. Never label AI-generated art as official. Placeholder geometry is never finished M5 environment or character art.
 
 ## Verification and reporting
 
